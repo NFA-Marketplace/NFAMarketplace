@@ -151,6 +151,24 @@ const Navbar = () => {
               </HoverCard.Content>
             </HoverCard.Root>
 
+            <HoverCard.Root openDelay={200}>
+              <HoverCard.Trigger>
+                <NavItem>Live</NavItem>
+              </HoverCard.Trigger>
+              <HoverCard.Content sideOffset={24} align="start">
+                <Card css={{ p: 24, width: 240, border: '1px solid $gray4' }}>
+                  <Flex css={{ gap: '$4' }} direction="column">
+                    <Link href={`/${routePrefix}/livestream/live`}>
+                      <NavItem>Now Streaming</NavItem>
+                    </Link>
+                    <Link href={`/${routePrefix}/livestream/calendar`}>
+                      <NavItem>Scheduled</NavItem>
+                    </Link>
+                  </Flex>
+                </Card>
+              </HoverCard.Content>
+            </HoverCard.Root>
+
             {false && (
               <Link href={`/${routePrefix}/collections/minting`}>
                 <NavItem>Mints</NavItem>
