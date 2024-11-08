@@ -24,23 +24,22 @@ type TrendingCollections = NonNullable<
   ReturnType<typeof useTrendingCollections>['data']
 >
 
-type Props = {
+interface Props {
   collections: TrendingCollections
   loading?: boolean
-  volumeKey: keyof NonNullable<TrendingCollections[0]['collectionVolume']>
+  volumeKey: '1day' | '7day' | '30day' | 'allTime'
+  startingRank?: number
 }
 const gridColumns = {
-  gridTemplateColumns: '520px repeat(5, 0.5fr) 250px',
+  gridTemplateColumns: '80px 1fr 200px 200px',
   '@md': {
-    gridTemplateColumns: '420px 1fr 1fr 1fr',
+    gridTemplateColumns: '80px 1fr 200px 200px',
   },
-
   '@lg': {
-    gridTemplateColumns: '360px repeat(5, 0.5fr) 250px',
+    gridTemplateColumns: '80px 1fr 200px 200px',
   },
-
   '@xl': {
-    gridTemplateColumns: '520px repeat(5, 0.5fr) 250px',
+    gridTemplateColumns: '80px 1fr 200px 200px',
   },
 }
 
@@ -48,6 +47,7 @@ export const CollectionRankingsTable: FC<Props> = ({
   collections,
   loading,
   volumeKey,
+  startingRank,
 }) => {
   const isSmallDevice = useMediaQuery({ maxWidth: 900 })
 
@@ -83,16 +83,14 @@ export const CollectionRankingsTable: FC<Props> = ({
             <TableHeading volumeKey={volumeKey} />
           )}
           <Flex direction="column" css={{ position: 'relative' }}>
-            {collections.map((collection, i) => {
-              return (
-                <RankingsTableRow
-                  key={collection.id}
-                  collection={collection}
-                  rank={i + 1}
-                  volumeKey={volumeKey}
-                />
-              )
-            })}
+            {collections?.map((collection, i) => (
+              <RankingsTableRow
+                key={collection.id}
+                collection={collection}
+                rank={((startingRank || 1) + i).toString()}
+                volumeKey={volumeKey}
+              />
+            ))}
           </Flex>
         </Flex>
       )}
@@ -102,7 +100,7 @@ export const CollectionRankingsTable: FC<Props> = ({
 
 type RankingsTableRowProps = {
   collection: TrendingCollections[0]
-  rank: number
+  rank: string
   volumeKey: ComponentPropsWithoutRef<
     typeof CollectionRankingsTable
   >['volumeKey']
@@ -195,145 +193,51 @@ const RankingsTableRow: FC<RankingsTableRowProps> = ({
           ...gridColumns,
         }}
       >
+        <TableCell>
+          <Text style="h6" color="subtle">
+            {rank}
+          </Text>
+        </TableCell>
         <TableCell css={{ minWidth: 0 }}>
           <Link
             href={`/${routePrefix}/collection/${collection.id}`}
             style={{ display: 'inline-block', width: '100%', minWidth: 0 }}
           >
-            <Flex
-              align="center"
-              css={{
-                gap: '$4',
-                cursor: 'pointer',
-                minWidth: 0,
-                overflow: 'hidden',
-                width: '100$',
-              }}
-            >
-              <Text css={{ minWidth: 15 }} style="h6" color="subtle">
-                {rank}
-              </Text>
+            <Flex align="center" css={{ gap: '$4', cursor: 'pointer', minWidth: 0 }}>
               <Img
                 src={collectionImage}
-                css={{
-                  borderRadius: 8,
-                  width: 52,
-                  height: 52,
-                  objectFit: 'cover',
-                }}
+                css={{ borderRadius: 8, width: 52, height: 52, objectFit: 'cover' }}
                 alt="Collection Image"
                 width={52}
                 height={52}
                 unoptimized
               />
-
               <Flex css={{ gap: '$1', minWidth: 0 }} align="center">
-                <Text
-                  css={{
-                    display: 'inline-block',
-                    minWidth: 0,
-                  }}
-                  style="h6"
-                  ellipsify
-                >
+                <Text style="h6" ellipsify>
                   {collection?.name}
                 </Text>
                 <OpenSeaVerified
-                  openseaVerificationStatus={
-                    collection?.openseaVerificationStatus
-                  }
+                  openseaVerificationStatus={collection?.openseaVerificationStatus}
                 />
               </Flex>
             </Flex>
           </Link>
         </TableCell>
         <TableCell>
-          <Flex
-            direction="column"
-            align="start"
-            justify="start"
-            css={{ height: '100%' }}
-          >
-            <FormatCryptoCurrency
-              amount={collection?.floorAsk?.price?.amount?.decimal}
-              address={collection?.floorAsk?.price?.currency?.contract}
-              decimals={collection?.floorAsk?.price?.currency?.decimals}
-              textStyle="subtitle1"
-              logoHeight={14}
-            />
-          </Flex>
+          <FormatCryptoCurrency
+            amount={collection?.floorAsk?.price?.amount?.decimal}
+            address={collection?.floorAsk?.price?.currency?.contract}
+            decimals={collection?.floorAsk?.price?.currency?.decimals}
+            textStyle="subtitle1"
+            logoHeight={14}
+          />
         </TableCell>
         <TableCell>
-          <Flex
-            direction="column"
-            align="start"
-            justify="start"
-            css={{ height: '100%' }}
-          >
-            <FormatCryptoCurrency
-              amount={collection?.collectionVolume?.[volumeKey]}
-              textStyle="subtitle1"
-              logoHeight={14}
-            />
-          </Flex>
-        </TableCell>
-        <TableCell desktopOnly>
-          {collection?.volumeChange?.['1day'] ? (
-            <PercentChange
-              style="subtitle1"
-              value={collection?.volumeChange?.['1day']}
-            />
-          ) : (
-            '-'
-          )}
-        </TableCell>
-        <TableCell desktopOnly>
-          {collection?.volumeChange?.['7day'] ? (
-            <PercentChange
-              style="subtitle1"
-              value={collection?.volumeChange?.['7day']}
-            />
-          ) : (
-            '-'
-          )}
-        </TableCell>
-        <TableCell desktopOnly>
-          <Text style="subtitle1">
-            {Number(collection?.tokenCount)?.toLocaleString()}
-          </Text>
-        </TableCell>
-        <TableCell desktopOnly>
-          <Flex
-            css={{
-              gap: '$2',
-              minWidth: 0,
-            }}
-            justify={'end'}
-          >
-            {collection?.sampleImages?.map((image, i) => {
-              if (image) {
-                return (
-                  <img
-                    key={image + i}
-                    src={optimizeImage(image, 104)}
-                    loading="lazy"
-                    style={{
-                      borderRadius: 8,
-                      width: 52,
-                      height: 52,
-                      objectFit: 'cover',
-                    }}
-                    onError={(
-                      e: React.SyntheticEvent<HTMLImageElement, Event>
-                    ) => {
-                      e.currentTarget.style.visibility = 'hidden'
-                    }}
-                  />
-                )
-              }
-              return null
-            })}
-          </Flex>
+          <FormatCryptoCurrency
+            amount={collection?.collectionVolume?.[volumeKey]}
+            textStyle="subtitle1"
+            logoHeight={14}
+          />
         </TableCell>
       </TableRow>
     )
@@ -341,13 +245,10 @@ const RankingsTableRow: FC<RankingsTableRowProps> = ({
 }
 
 const headings = [
+  'Rank',
   'Collection',
   'Floor Price',
   'Volume',
-  '1D Change',
-  '7D Change',
-  'Supply',
-  'Sample Tokens',
 ]
 
 const TableHeading: React.FC<Pick<Props, 'volumeKey'>> = ({ volumeKey }) => (

@@ -5,25 +5,44 @@ import { Box, Flex, FormatCryptoCurrency, Text } from 'components/primitives'
 import Img from 'components/primitives/Img'
 import { useMarketplaceChain } from 'hooks'
 import Link from 'next/link'
+import { TopTraders } from './TopTraders'
 
 type TrendingCollections = ReturnType<typeof useTrendingCollections>['data']
 
-type FeaturedCardsProps = {
+interface FeaturedCardsProps {
   collections: TrendingCollections
   loading?: boolean
+  className?: string
 }
 
 export const FeaturedCards: React.FC<FeaturedCardsProps> = ({
   collections,
   loading,
+  className,
 }) => {
   const marketplaceChain = useMarketplaceChain()
 
-  if (!collections) return null
+  const isValidImageUrl = (url?: string) => {
+    if (!url) return false
+    return (url.startsWith('http') || url.startsWith('https')) && 
+           !url.includes('undefined') && 
+           !url.includes('null')
+  }
+
+  const validCollections = collections?.filter(collection => {
+    const bannerImage = collection?.banner || collection?.sampleImages?.[0]
+    const collectionImage = collection?.image
+
+    return isValidImageUrl(bannerImage) && isValidImageUrl(collectionImage)
+  })?.slice(0, 10) || null
+
+  console.log('Total valid collections:', validCollections?.length)
+
+  if (!validCollections) return null
 
   return (
     <>
-      {!loading && collections.length === 0 ? (
+      {!loading && validCollections.length === 0 ? (
         <Flex
           direction="column"
           align="center"
@@ -35,44 +54,41 @@ export const FeaturedCards: React.FC<FeaturedCardsProps> = ({
           <Text css={{ color: '$gray11' }}>No collections found</Text>
         </Flex>
       ) : (
-        <Flex
-          direction="row"
-          align="center"
+        <Flex 
           css={{
+            overflowX: 'auto',
+            gap: '$4',
+            pb: '$2',
             width: '100%',
-            overflowY: 'scroll',
-            padding: '10px 5px',
-            gap: '12px',
+            '&::-webkit-scrollbar': {
+              display: 'none'
+            },
+            '-ms-overflow-style': 'none',
+            'scrollbar-width': 'none',
           }}
         >
-          {collections.map((collection) => {
-            const bannerImage =
-              collection?.banner ||
-              collection?.image ||
-              collection.sampleImages?.[0]
-
-            const collectionImage =
-              collection?.image ||
-              collection?.banner ||
-              collection.sampleImages?.[0]
-
-            return (
+          {validCollections.map((collection) => (
+            <Box
+              key={collection.id}
+              css={{
+                flex: '0 0 auto',
+              }}
+            >
               <Link
-                key={collection.id}
-                href={`/${marketplaceChain.routePrefix}/collection/${collection.id}`}
+                href={`/collection/${collection.id}`}
+                style={{ textDecoration: 'none' }}
               >
                 <Flex
                   direction="column"
                   css={{
-                    flex: 1,
-                    width: '330px',
+                    width: '280px',
                     height: '290px',
                     borderRadius: 12,
                     cursor: 'pointer',
                     background: '$neutralBgSubtle',
                     $$shadowColor: '$colors$panelShadow',
                     boxShadow: '0px 0px 12px 0px $$shadowColor',
-                    p: '16px',
+                    p: '0',
                   }}
                 >
                   <Flex
@@ -86,22 +102,22 @@ export const FeaturedCards: React.FC<FeaturedCardsProps> = ({
                     <Flex
                       css={{
                         height: '150px',
-                        width: '300px',
+                        width: '100%',
                       }}
                     >
                       <Img
-                        src={bannerImage as string}
+                        src={collection?.banner as string}
                         alt={collection.name as string}
                         height={150}
-                        width={300}
+                        width={280}
                         style={{
                           objectFit: 'cover',
-                          borderRadius: 8,
+                          borderRadius: '12px 12px 0 0',
                         }}
                       />
                     </Flex>
                     <Img
-                      src={collectionImage as string}
+                      src={collection?.image as string}
                       alt={collection.name as string}
                       height={50}
                       width={50}
@@ -109,7 +125,7 @@ export const FeaturedCards: React.FC<FeaturedCardsProps> = ({
                         height: '50px',
                         width: '50px',
                         position: 'absolute',
-                        inset: '95px 0px 5px 5px',
+                        inset: '95px 0px 5px 16px',
                         border: '2px solid white',
                         borderRadius: 8,
                       }}
@@ -120,6 +136,8 @@ export const FeaturedCards: React.FC<FeaturedCardsProps> = ({
                     css={{
                       width: '100%',
                       height: '100%',
+                      px: '16px',
+                      pb: '16px',
                     }}
                   >
                     <Box
@@ -191,8 +209,9 @@ export const FeaturedCards: React.FC<FeaturedCardsProps> = ({
                   </Flex>
                 </Flex>
               </Link>
-            )
-          })}
+              {collection.id && <TopTraders collectionId={collection.id} />}
+            </Box>
+          ))}
         </Flex>
       )}
     </>

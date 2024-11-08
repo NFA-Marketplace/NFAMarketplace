@@ -1,4 +1,5 @@
 import { Head } from 'components/Head'
+import { Footer } from 'components/home/Footer'
 import Layout from 'components/Layout'
 import { Box, Flex, Text } from 'components/primitives'
 import { NextPage } from 'next'
@@ -248,6 +249,7 @@ const IndexPage: NextPage = () => {
           </Flex>
         </Flex>
       </Box>
+      <Footer />
     </Layout>
   )
 }

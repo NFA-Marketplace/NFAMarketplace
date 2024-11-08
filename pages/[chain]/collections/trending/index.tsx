@@ -2,14 +2,12 @@ import { useTrendingCollections } from '@reservoir0x/reservoir-kit-ui'
 import { paths } from '@reservoir0x/reservoir-sdk'
 import { Head } from 'components/Head'
 import Layout from 'components/Layout'
-import ChainToggle from 'components/common/ChainToggle'
 import CollectionsTimeDropdown, {
   CollectionsSortingOption,
 } from 'components/common/CollectionsTimeDropdown'
 import LoadingSpinner from 'components/common/LoadingSpinner'
 import { Box, Flex, Text } from 'components/primitives'
 import { CollectionRankingsTable } from 'components/rankings/CollectionRankingsTable'
-import { ChainContext } from 'context/ChainContextProvider'
 import { useMounted } from 'hooks'
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import { useRouter } from 'next/router'
@@ -26,40 +24,27 @@ import fetcher from 'utils/fetcher'
 type Props = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const IndexPage: NextPage<Props> = ({ ssr }) => {
-  const router = useRouter()
-  const isSSR = typeof window === 'undefined'
   const isMounted = useMounted()
   const compactToggleNames = useMediaQuery({ query: '(max-width: 800px)' })
   const [sortByTime, setSortByTime] = useState<CollectionsSortingOption>('24h')
 
-  let collectionQuery: Parameters<typeof useTrendingCollections>['0'] = {
-    limit: 1000,
-    period: sortByTime,
-  }
-
-  const { chain, switchCurrentChain } = useContext(ChainContext)
-
-  useEffect(() => {
-    if (router.query.chain) {
-      let chainIndex: number | undefined
-      for (let i = 0; i < supportedChains.length; i++) {
-        if (supportedChains[i].routePrefix == router.query.chain) {
-          chainIndex = supportedChains[i].id
-        }
+  const chainQueries = supportedChains.map(chain => {
+    const { data, isValidating } = useTrendingCollections(
+      {
+        limit: 10,
+        period: sortByTime,
+      },
+      chain.id,
+      {
+        fallbackData: ssr[chain.id]?.collections,
       }
-      if (chainIndex !== -1 && chainIndex) {
-        switchCurrentChain(chainIndex)
-      }
+    )
+    return {
+      chain,
+      data: data || [],
+      isValidating
     }
-  }, [router.query])
-
-  const { data, isValidating } = useTrendingCollections(
-    collectionQuery,
-    chain.id,
-    {
-      fallbackData: [ssr.collections],
-    }
-  )
+  })
 
   let volumeKey: ComponentPropsWithoutRef<
     typeof CollectionRankingsTable
@@ -77,24 +62,10 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
       break
   }
 
-  const collections = data || []
-
   return (
     <Layout>
       <Head />
-      <Box
-        css={{
-          p: 24,
-          height: '100%',
-          '@bp800': {
-            p: '$5',
-          },
-
-          '@xl': {
-            px: '$6',
-          },
-        }}
-      >
+      <Box css={{ p: 24, height: '100%', '@bp800': { p: '$5' }, '@xl': { px: '$6' } }}>
         <Flex direction="column">
           <Flex
             justify="between"
@@ -112,30 +83,32 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
             <Text style="h4" as="h4">
               Trending Collections
             </Text>
-            <Flex align="center" css={{ gap: '$4' }}>
-              <CollectionsTimeDropdown
-                compact={compactToggleNames && isMounted}
-                option={sortByTime}
-                onOptionSelected={(option) => {
-                  setSortByTime(option)
-                }}
-              />
-              <ChainToggle />
-            </Flex>
-          </Flex>
-          {isSSR || !isMounted ? null : (
-            <CollectionRankingsTable
-              collections={collections}
-              volumeKey={volumeKey}
-              loading={isValidating}
+            <CollectionsTimeDropdown
+              compact={compactToggleNames && isMounted}
+              option={sortByTime}
+              onOptionSelected={(option) => {
+                setSortByTime(option)
+              }}
             />
-          )}
-        </Flex>
-        {isValidating && (
-          <Flex align="center" justify="center" css={{ py: '$4' }}>
-            <LoadingSpinner />
           </Flex>
-        )}
+
+          {isMounted ? (
+            <Flex direction="column" css={{ gap: '$6' }}>
+              {chainQueries.map(({ chain, data, isValidating }) => (
+                <Box key={chain.id}>
+                  <Text style="h5" as="h5" css={{ mb: '$4' }}>
+                    {chain.name}
+                  </Text>
+                  <CollectionRankingsTable
+                    collections={data}
+                    volumeKey={volumeKey}
+                    loading={isValidating}
+                  />
+                </Box>
+              ))}
+            </Flex>
+          ) : null}
+        </Flex>
       </Box>
     </Layout>
   )
@@ -144,32 +117,34 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
 type TrendingCollectionsResponse =
   paths['/collections/trending/v1']['get']['responses']['200']['schema']
 
-export const getServerSideProps: GetServerSideProps<{
-  ssr: {
-    collections: TrendingCollectionsResponse
+export const getServerSideProps: GetServerSideProps = async ({ res }) => {
+  const query = {
+    limit: 10,
+    period: '24h',
   }
-}> = async ({ res, params }) => {
-  let collectionQuery: paths['/collections/trending/v1']['get']['parameters']['query'] =
-    {
-      limit: 1000,
-      period: '24h',
-    }
 
-  const chainPrefix = params?.chain || ''
-  const chain =
-    supportedChains.find((chain) => chain.routePrefix === chainPrefix) ||
-    DefaultChain
-  const query = { ...collectionQuery }
-
-  const response = await fetcher(
-    `${chain.reservoirBaseUrl}/collections/trending/v1`,
-    query,
-    {
-      headers: {
-        'x-api-key': process.env.RESERVOIR_API_KEY || '',
-      },
-    }
+  const chainData = await Promise.all(
+    supportedChains.map(async (chain) => {
+      const response = await fetcher(
+        `${chain.reservoirBaseUrl}/collections/trending/v1`,
+        query,
+        {
+          headers: {
+            'x-api-key': process.env.RESERVOIR_API_KEY || '',
+          },
+        }
+      )
+      return {
+        chainId: chain.id,
+        collections: response.data
+      }
+    })
   )
+
+  const ssr = chainData.reduce((acc, { chainId, collections }) => {
+    acc[chainId] = { collections }
+    return acc
+  }, {} as Record<number, { collections: TrendingCollectionsResponse }>)
 
   res.setHeader(
     'Cache-Control',
@@ -177,7 +152,7 @@ export const getServerSideProps: GetServerSideProps<{
   )
 
   return {
-    props: { ssr: { collections: response.data } },
+    props: { ssr },
   }
 }
 

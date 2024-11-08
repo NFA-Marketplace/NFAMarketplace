@@ -34,10 +34,38 @@ import { useTheme } from 'next-themes'
 import { useRouter } from 'next/router'
 import { useMediaQuery } from 'react-responsive'
 import fetcher from 'utils/fetcher'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { styled } from 'stitches.config'
+import { TopTraders } from 'components/home/TopTraders'
+import { StreamCard } from 'components/home/StreamCard'
 
 type TabValue = 'collections' | 'mints'
 
 type Props = InferGetServerSidePropsType<typeof getServerSideProps>
+
+const ScrollButton = styled('button', {
+  display: 'none',
+  position: 'absolute',
+  top: '50%',
+  transform: 'translateY(-50%)',
+  background: '$gray3',
+  border: 'none',
+  padding: '$3',
+  borderRadius: '$round',
+  cursor: 'pointer',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: '$gray12',
+  '&:hover': {
+    background: '$gray4',
+  },
+  variants: {
+    direction: {
+      left: { left: 0 },
+      right: { right: 0 },
+    },
+  },
+})
 
 const Home: NextPage<Props> = ({ ssr }) => {
   const router = useRouter()
@@ -137,6 +165,55 @@ const Home: NextPage<Props> = ({ ssr }) => {
       break
   }
 
+  const dummyStreams = [
+    {
+      id: '1',
+      title: 'Live NFT Minting Event - New Collection Drop! 🚀',
+      viewerCount: 1234,
+      thumbnailUrl: 'https://picsum.photos/seed/stream1/400/225',
+      streamerName: 'CryptoArtist_Pro'
+    },
+    {
+      id: '2',
+      title: 'Trading Rare NFTs - Join the Action 💎',
+      viewerCount: 856,
+      thumbnailUrl: 'https://picsum.photos/seed/stream2/400/225',
+      streamerName: 'NFT_Trader'
+    },
+    {
+      id: '3',
+      title: 'Exclusive Bored Ape Showcase 🐵',
+      viewerCount: 2100,
+      thumbnailUrl: 'https://picsum.photos/seed/stream3/400/225',
+      streamerName: 'ApeCollector'
+    },
+    {
+      id: '4',
+      title: 'Live Art Creation - Watch the Process! 🎨',
+      viewerCount: 567,
+      thumbnailUrl: 'https://picsum.photos/seed/stream4/400/225',
+      streamerName: 'DigitalArtist'
+    },
+    {
+      id: '5',
+      title: 'NFT Market Analysis & Tips 📊',
+      viewerCount: 1567,
+      thumbnailUrl: 'https://picsum.photos/seed/stream5/400/225',
+      streamerName: 'CryptoAnalyst'
+    }
+  ]
+
+  const [streams, setStreams] = useState<any[]>([])
+  const [loadingStreams, setLoadingStreams] = useState(true)
+
+  useEffect(() => {
+    // Simulate API delay
+    setTimeout(() => {
+      setStreams(dummyStreams)
+      setLoadingStreams(false)
+    }, 1000)
+  }, [])
+
   return (
     <Layout>
       <Head />
@@ -144,6 +221,7 @@ const Home: NextPage<Props> = ({ ssr }) => {
         css={{
           p: 24,
           height: '100%',
+          background: '$neutralBg',
           '@bp800': {
             px: '$5',
           },
@@ -152,82 +230,129 @@ const Home: NextPage<Props> = ({ ssr }) => {
           },
         }}
       >
+        {/* Hero Section */}
         <Box
           css={{
-            mb: 64,
+            mb: '40px',
+            pt: '20px',
+            '@bp800': {
+              mb: 80,
+              pt: 40,
+            },
           }}
         >
           <Flex
+            direction="column"
+            align="center"
+            css={{
+              textAlign: 'center',
+              gap: '$4',
+              mb: '$4',
+              px: '$3',
+              '@bp800': {
+                mb: '$6',
+              },
+            }}
+          >
+            <Text
+              style="h2"
+              css={{
+                fontSize: '32px',
+                '@bp800': {
+                  fontSize: '60px',
+                },
+              }}
+            >
+              Explore, collect, and sell NFTs
+            </Text>
+            <Text style="body1" css={{ color: '$gray11', maxWidth: 600 }}>
+              The world's largest digital marketplace for crypto collectibles and non-fungible tokens
+            </Text>
+          </Flex>
+        </Box>
+
+        {/* Top Traders Section */}
+        <Box css={{ mb: '40px', '@bp800': { mb: 80 } }}>
+          <Flex
             justify="between"
-            align="start"
+            align="center"
             css={{
               gap: 24,
               mb: '$4',
+              px: '$3',
+              '@bp800': {
+                px: 24,
+              },
             }}
           >
             <Text style="h4" as="h4">
-              Featured
+              Top Traders
             </Text>
           </Flex>
           <Box
             css={{
-              height: '100%',
+              overflowX: 'auto',
+              px: '$3',
+              '@bp800': {
+                px: 24,
+              },
+              '& > div': {
+                display: 'flex',
+                gap: 20,
+                '& > div': {
+                  flex: '0 0 300px',
+                  '@bp800': {
+                    flex: 1,
+                  },
+                },
+              },
             }}
           >
-            <FeaturedCards collections={featuredCollections} />
+            <FeaturedCards
+              collections={trendingCollections?.slice(0, 5) || null}
+            />
           </Box>
         </Box>
 
-        <Tabs.Root
-          onValueChange={(tab) => setTab(tab as TabValue)}
-          defaultValue="collections"
+        {/* Live Streams Section */}
+        <Box css={{ mb: 80 }}>
+          <Box css={{ p: 24 }}>
+            <StreamCard streams={streams} loading={loadingStreams} />
+          </Box>
+        </Box>
+
+        {/* Trending Section */}
+        <Box
+          css={{
+            p: '$3',
+            '@bp800': {
+              p: 24,
+            },
+          }}
         >
-          <Flex justify="between" align="start" css={{ mb: '$3' }}>
-            <Text style="h4" as="h4">
-              Trending
-            </Text>
-            {!isSmallDevice && (
-              <Flex
-                align="center"
-                css={{
-                  gap: '$4',
-                }}
-              >
-                {tab === 'collections' ? (
-                  <CollectionsTimeDropdown
-                    compact={isSmallDevice && isMounted}
-                    option={sortByTime}
-                    onOptionSelected={(option) => {
-                      setSortByTime(option)
-                    }}
-                  />
-                ) : (
-                  <MintsPeriodDropdown
-                    option={sortByPeriod}
-                    onOptionSelected={setSortByPeriod}
-                  />
-                )}
-                <ChainToggle />
-              </Flex>
-            )}
-          </Flex>
-          <TabsList css={{ mb: 24, mt: 0, borderBottom: 'none' }}>
-            <TabsTrigger value="collections">Collections</TabsTrigger>
-            <TabsTrigger value="mints">Mints</TabsTrigger>
-          </TabsList>
-          {isSmallDevice && (
-            <Flex
-              justify="between"
-              align="center"
-              css={{
-                gap: 24,
+          <Tabs.Root
+            onValueChange={(tab) => setTab(tab as TabValue)}
+            defaultValue="collections"
+          >
+            <Flex 
+              justify="between" 
+              align="center" 
+              css={{ 
                 mb: '$4',
+                flexDirection: 'column',
+                gap: '$3',
+                '@bp800': {
+                  flexDirection: 'row',
+                },
               }}
             >
+              <Text style="h4" as="h4">
+                Trending
+              </Text>
               <Flex align="center" css={{ gap: '$4' }}>
                 {tab === 'collections' ? (
                   <CollectionsTimeDropdown
-                    compact={isSmallDevice && isMounted}
+                    compact={true}
                     option={sortByTime}
                     onOptionSelected={(option) => {
                       setSortByTime(option)
@@ -239,61 +364,105 @@ const Home: NextPage<Props> = ({ ssr }) => {
                     onOptionSelected={setSortByPeriod}
                   />
                 )}
-                <ChainToggle />
               </Flex>
             </Flex>
-          )}
-          <TabsContent value="collections">
-            <Box
-              css={{
-                height: '100%',
-              }}
-            >
-              <Flex direction="column">
-                {isSSR || !isMounted ? null : (
-                  <CollectionRankingsTable
-                    collections={trendingCollections || []}
-                    volumeKey={volumeKey}
-                    loading={isTrendingCollectionsValidating}
-                  />
-                )}
-                <Box
-                  css={{
-                    display: isTrendingCollectionsValidating ? 'none' : 'block',
+
+            <TabsContent value="collections">
+              <Box css={{ height: '100%' }}>
+                <Flex 
+                  css={{ 
+                    gap: '$3',
+                    flexDirection: 'column',
+                    '@bp800': {
+                      flexDirection: 'row',
+                      gap: '$5',
+                    },
                   }}
-                ></Box>
-              </Flex>
-            </Box>
-          </TabsContent>
-          <TabsContent value="mints">
-            <Box
-              css={{
-                height: '100%',
-              }}
-            >
-              <Flex direction="column">
-                {isSSR || !isMounted ? null : (
-                  <MintRankingsTable
-                    mints={trendingMints || []}
-                    loading={isTrendingMintsValidating}
-                  />
-                )}
-                <Box
-                  css={{
-                    display: isTrendingCollectionsValidating ? 'none' : 'block',
-                  }}
-                ></Box>
-              </Flex>
-            </Box>
-          </TabsContent>
-        </Tabs.Root>
-        <Box css={{ my: '$5' }}>
+                >
+                  <Box css={{ flex: 1 }}>
+                    {isSSR || !isMounted ? null : (
+                      <CollectionRankingsTable
+                        collections={(trendingCollections || []).slice(0, 5)}
+                        volumeKey={volumeKey}
+                        loading={isTrendingCollectionsValidating}
+                      />
+                    )}
+                  </Box>
+                  <Box 
+                    css={{ 
+                      flex: 1,
+                      display: 'none',
+                      '@bp800': {
+                        display: 'block',
+                      },
+                    }}
+                  >
+                    {isSSR || !isMounted ? null : (
+                      <CollectionRankingsTable
+                        collections={(trendingCollections || []).slice(5, 10)}
+                        volumeKey={volumeKey}
+                        loading={isTrendingMintsValidating}
+                        startingRank={6}
+                      />
+                    )}
+                  </Box>
+                </Flex>
+              </Box>
+            </TabsContent>
+            <TabsContent value="mints">
+              <Box
+                css={{
+                  height: '100%',
+                }}
+              >
+                <Flex direction="column">
+                  {isSSR || !isMounted ? null : (
+                    <MintRankingsTable
+                      mints={trendingMints || []}
+                      loading={isTrendingMintsValidating}
+                    />
+                  )}
+                  <Box
+                    css={{
+                      display: isTrendingCollectionsValidating
+                        ? 'none'
+                        : 'block',
+                    }}
+                  ></Box>
+                </Flex>
+              </Box>
+            </TabsContent>
+          </Tabs.Root>
+        </Box>
+
+        <Box 
+          css={{ 
+            my: '$4',
+            textAlign: 'center',
+            '@bp800': {
+              my: '$5',
+            },
+          }}
+        >
           <Link href={`/${marketplaceChain.routePrefix}/${tab}/trending`}>
-            <Button>See More</Button>
+            <Button
+              css={{
+                background: '$primary9',
+                color: 'white',
+                width: 'calc(100% - 32px)',
+                '@bp800': {
+                  width: 'auto',
+                },
+                '&:hover': {
+                  background: '$primary10',
+                },
+              }}
+            >
+              View All
+            </Button>
           </Link>
         </Box>
       </Box>
-
       <Footer />
     </Layout>
   )
