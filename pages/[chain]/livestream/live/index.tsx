@@ -1,27 +1,9 @@
-import { useTrendingMints } from '@reservoir0x/reservoir-kit-ui'
-import { paths } from '@reservoir0x/reservoir-sdk'
 import { Head } from 'components/Head'
 import Layout from 'components/Layout'
-import ChainToggle from 'components/common/ChainToggle'
-import LoadingSpinner from 'components/common/LoadingSpinner'
-import MintTypeSelector, {
-  MintTypeOption,
-} from 'components/common/MintTypeSelector'
-import MintsPeriodDropdown, {
-  MintsSortingOption,
-} from 'components/common/MintsPeriodDropdown'
-import { Box, Flex, Text, Grid } from 'components/primitives'
-import { ChainContext } from 'context/ChainContextProvider'
-import { useMounted } from 'hooks'
-import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
-import { useRouter } from 'next/router'
-import { NORMALIZE_ROYALTIES } from 'pages/_app'
-import { useContext, useEffect, useState } from 'react'
+import { Box, Flex, Text } from 'components/primitives'
+import { NextPage } from 'next'
 import { useMediaQuery } from 'react-responsive'
-import supportedChains, { DefaultChain } from 'utils/chains'
-import fetcher from 'utils/fetcher'
-
-type Props = InferGetServerSidePropsType<typeof getServerSideProps>
+import { useEffect, useState } from 'react'
 
 type ChatMessage = {
   id: number
@@ -31,9 +13,8 @@ type ChatMessage = {
   position?: number
 }
 
-const IndexPage: NextPage<Props> = ({ ssr }) => {
+const IndexPage: NextPage = () => {
   const isMobile = useMediaQuery({ maxWidth: 800 })
-  
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [inputMessage, setInputMessage] = useState('')
 
@@ -269,49 +250,6 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
       </Box>
     </Layout>
   )
-}
-
-type MintsSchema =
-  paths['/collections/trending-mints/v1']['get']['responses']['200']['schema']
-
-export const getServerSideProps: GetServerSideProps<{
-  ssr: {
-    mints: MintsSchema
-  }
-}> = async ({ res, params }) => {
-  const mintsQuery: paths['/collections/trending-mints/v1']['get']['parameters']['query'] =
-    {
-      limit: 20,
-      period: '24h',
-      type: 'any',
-    }
-
-  const chainPrefix = params?.chain || ''
-
-  const { reservoirBaseUrl } =
-    supportedChains.find((chain) => chain.routePrefix === chainPrefix) ||
-    DefaultChain
-
-  const query = { ...mintsQuery, normalizeRoyalties: NORMALIZE_ROYALTIES }
-
-  const response = await fetcher(
-    `${reservoirBaseUrl}/collections/trending-mints/v1`,
-    query,
-    {
-      headers: {
-        'x-api-key': process.env.RESERVOIR_API_KEY || '',
-      },
-    }
-  )
-
-  res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=30, stale-while-revalidate=60'
-  )
-
-  return {
-    props: { ssr: { mints: response.data } },
-  }
 }
 
 export default IndexPage

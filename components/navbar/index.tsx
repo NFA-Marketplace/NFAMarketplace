@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Box, Flex, Card } from '../primitives'
+import { Box, Flex, Card, Text } from '../primitives'
 import GlobalSearch from './GlobalSearch'
 import { useRouter } from 'next/router'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -222,21 +222,18 @@ const Navbar = () => {
                     >
                       <NavItem>Docs</NavItem>
                     </a>
-
                     <a
                       target="_blank"
                       href={`https://docs.reservoir.tools/reference/overview`}
                     >
                       <NavItem>API Reference</NavItem>
                     </a>
-
                     <a
                       target="_blank"
                       href={`https://github.com/reservoirprotocol`}
                     >
                       <NavItem>Github</NavItem>
                     </a>
-
                     <a href={`https://testnets.reservoir.tools`}>
                       <NavItem>Testnet Explorer</NavItem>
                     </a>
@@ -245,14 +242,8 @@ const Navbar = () => {
               </HoverCard.Content>
             </HoverCard.Root>
           </Box>
-          {isConnected && (
-            <Link href={`/portfolio/${address || ''}?chain=${routePrefix}`}>
-              <Box css={{ mr: '$2' }}>
-                <NavItem>Portfolio</NavItem>
-              </Box>
-            </Link>
-          )}
         </Flex>
+        <ThemeSwitcher />
 
         {isConnected ? (
           <AccountSidebar />

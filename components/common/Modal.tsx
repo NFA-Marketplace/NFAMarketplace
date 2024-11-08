@@ -101,26 +101,6 @@ export const Modal = forwardRef<ElementRef<typeof Dialog>, Props>(
         >
           {children}
         </Box>
-        <Flex
-          css={{
-            mx: 'auto',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '$gray3',
-            py: 10.5,
-            borderBottomRightRadius: '$borderRadius',
-            borderBottomLeftRadius: '$borderRadius',
-          }}
-        >
-          <Anchor href="https://reservoir.tools/" target="_blank">
-            <Text
-              style="body3"
-              css={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
-            >
-              Powered by <Logo />
-            </Text>
-          </Anchor>
-        </Flex>
       </Dialog>
     )
   }
