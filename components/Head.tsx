@@ -15,7 +15,7 @@ type Props = {
  * @param description - The description of the page.
  */
 export const Head: FC<Props> = ({
-  ogImage = 'https://explorer.reservoir.tools/og-image.png',
+  ogImage = 'https://explorer.reservoir.tools/og-image.jpg',
   title = 'NFA Marketplace',
   description = 'Marketplace for NFA',
   metatags = null,
