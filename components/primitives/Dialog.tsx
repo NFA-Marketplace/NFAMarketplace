@@ -10,10 +10,11 @@ import {
 import { AnimatePresence, motion } from 'framer-motion'
 
 const Overlay = styled(DialogPrimitive.Overlay, {
-  backgroundColor: '$neutralBg',
+  backgroundColor: 'rgba(0, 0, 0, 0.85)',
   position: 'fixed',
   inset: 0,
   zIndex: 5000,
+  backdropFilter: 'blur(100px)',
 })
 
 const AnimatedOverlay = forwardRef<
@@ -36,9 +37,8 @@ const AnimatedOverlay = forwardRef<
 const Content = styled(DialogPrimitive.Content, {
   backgroundColor: '$neutralBg',
   borderRadius: 8,
-  $$shadowColor: '$colors$gray7',
-  boxShadow: 'box-shadow: 0px 2px 16px $$shadowColor',
-  border: '1px solid $gray7',
+  boxShadow: '0px 0px 100px 20px $$shadowColor',
+  border: '1px solid $neutralBg',
   position: 'fixed',
   top: '12.5%',
   left: '50%',

@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { Text, Box, Flex, Anchor, Button } from '../primitives'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTwitter } from '@fortawesome/free-brands-svg-icons'
+import { faDiscord, faInstagram, faTwitter } from '@fortawesome/free-brands-svg-icons'
 
 type SectionTitleProps = {
   title: string
@@ -30,37 +30,41 @@ const SectionLink: FC<SectionLinkProps> = ({ name, href }) => (
   </Anchor>
 )
 
-const developerSectionLinks = [
+const communitySectionLinks = [
   {
-    name: 'Docs',
-    href: 'https://docs.reservoir.tools/docs',
+    name: 'Shop NFA',
+    href: 'https://nonfungibleart.io/nfashops/',
   },
   {
-    name: 'API Reference',
-    href: 'https://docs.reservoir.tools/reference/overview',
+    name: 'Partners',
+    href: 'https://nonfungibleart.io/partners/',
   },
   {
-    name: 'Github',
-    href: 'https://github.com/reservoirprotocol',
+    name: 'Collections',
+    href: 'https://nonfungibleart.io/collections/',
   },
   {
-    name: 'Testnets',
-    href: 'https://testnets.reservoir.tools',
+    name: 'Crypto Homies',
+    href: 'https://cryptohomiesclub.io/',
   },
 ]
 
 const companySectionLinks = [
   {
-    name: 'Jobs',
-    href: 'https://jobs.ashbyhq.com/reservoir',
+    name: 'Non-Fungible Art',
+    href: 'https://nonfungibleart.io/',
+  },
+  {
+    name: 'Meet the Team',
+    href: 'https://nonfungibleart.io/team/',
   },
   {
     name: 'Terms of Use',
-    href: 'https://reservoir.tools/terms',
+    href: 'https://nonfungibleart.io/terms-of-service/',
   },
   {
     name: 'Privacy Policy',
-    href: 'https://reservoir.tools/privacy',
+    href: 'https://nonfungibleart.io/privacy-policy/',
   },
 ]
 
@@ -86,8 +90,8 @@ export const Footer = () => {
     >
       <Flex css={{ gap: 80, '@bp600': { gap: 136 } }}>
         <Flex direction="column">
-          <SectionTitle title="Developers" />
-          {developerSectionLinks.map((props) => (
+          <SectionTitle title="Community" />
+          {communitySectionLinks.map((props) => (
             <SectionLink key={props.name} {...props} />
           ))}
         </Flex>
@@ -102,15 +106,33 @@ export const Footer = () => {
         direction="column"
         css={{ alignItems: 'flex-start', '@bp600': { alignItems: 'flex-end' } }}
       >
-        <SectionTitle title="Join Reservoir Community" />
+        <SectionTitle title="Join NFA Community" />
         <Flex css={{ gap: '$4', mt: 16 }}>
           <a
             target="_blank"
             rel="noopener noreferrer"
-            href="https://twitter.com/reservoir0x"
+            href="https://x.com/NFA_Inc"
           >
             <Button size="xs" color="gray3">
               <FontAwesomeIcon icon={faTwitter} width={14} height={14} />
+            </Button>
+          </a>
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://discord.gg/MbPu2nDPkA"
+          >
+            <Button size="xs" color="gray3">
+              <FontAwesomeIcon icon={faDiscord} width={14} height={14} />
+            </Button>
+          </a>
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://www.instagram.com/accounts/login/?next=https%3A%2F%2Fwww.instagram.com%2Fnonfungibleartinc%2F&is_from_rle"
+          >
+            <Button size="xs" color="gray3">
+              <FontAwesomeIcon icon={faInstagram} width={14} height={14} />
             </Button>
           </a>
         </Flex>

@@ -20,21 +20,26 @@ export const FeaturedCards: React.FC<FeaturedCardsProps> = ({
   loading,
   className,
 }) => {
-  const marketplaceChain = useMarketplaceChain()
+  const { routePrefix } = useMarketplaceChain()
 
   const isValidImageUrl = (url?: string) => {
     if (!url) return false
-    return (url.startsWith('http') || url.startsWith('https')) && 
-           !url.includes('undefined') && 
-           !url.includes('null')
+    return (
+      (url.startsWith('http') || url.startsWith('https')) &&
+      !url.includes('undefined') &&
+      !url.includes('null')
+    )
   }
 
-  const validCollections = collections?.filter(collection => {
-    const bannerImage = collection?.banner || collection?.sampleImages?.[0]
-    const collectionImage = collection?.image
+  const validCollections =
+    collections
+      ?.filter((collection) => {
+        const bannerImage = collection?.banner || collection?.sampleImages?.[0]
+        const collectionImage = collection?.image
 
-    return isValidImageUrl(bannerImage) && isValidImageUrl(collectionImage)
-  })?.slice(0, 10) || null
+        return isValidImageUrl(bannerImage) && isValidImageUrl(collectionImage)
+      })
+      ?.slice(0, 10) || null
 
   console.log('Total valid collections:', validCollections?.length)
 
@@ -54,14 +59,14 @@ export const FeaturedCards: React.FC<FeaturedCardsProps> = ({
           <Text css={{ color: '$gray11' }}>No collections found</Text>
         </Flex>
       ) : (
-        <Flex 
+        <Flex
           css={{
             overflowX: 'auto',
             gap: '$4',
             pb: '$2',
             width: '100%',
             '&::-webkit-scrollbar': {
-              display: 'none'
+              display: 'none',
             },
             '-ms-overflow-style': 'none',
             'scrollbar-width': 'none',
@@ -75,7 +80,7 @@ export const FeaturedCards: React.FC<FeaturedCardsProps> = ({
               }}
             >
               <Link
-                href={`/collection/${collection.id}`}
+                href={`/${routePrefix}/collection/${collection.id}`}
                 style={{ textDecoration: 'none' }}
               >
                 <Flex

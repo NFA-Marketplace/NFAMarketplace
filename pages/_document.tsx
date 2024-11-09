@@ -34,13 +34,13 @@ class MyDocument extends Document {
         {/* Favicon */}
         <link
           rel="shortcut icon"
-          type="image/svg"
-          href="https://marketplace.reservoir.tools/reservoir.svg"
+          type="image/png"
+          href="/NFA-logo-gold.png"
         />
 
         {/* Reservoir meta tags */}
-        <meta property="reservoir:title" content="Reservoir NFT Explorer" />
-        <meta property="reservoir:icon" content="/reservoir-source-icon.png" />
+        <meta property="reservoir:title" content="NFA Marketplace" />
+        <meta property="reservoir:icon" content="/NFA-logo-gold.png" />
         <meta
           property="reservoir:token-url-mainnet"
           content="/ethereum/asset/${contract}:${tokenId}"

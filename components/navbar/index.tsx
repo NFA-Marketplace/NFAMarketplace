@@ -66,10 +66,10 @@ const Navbar = () => {
           <Link href={`/${routePrefix}`}>
             <Box css={{ width: 46, cursor: 'pointer' }}>
               <Image
-                src="/reservoirLogo.svg"
-                width={36}
-                height={36}
-                alt="Reservoir"
+                src={theme === 'dark' ? '/NFA-logo-white.png' : '/NFA-logo-black.png'}
+                width={50}
+                height={50}
+                alt="NFA"
               />
             </Box>
           </Link>
@@ -115,10 +115,10 @@ const Navbar = () => {
           <Link href={`/${routePrefix}`}>
             <Box css={{ cursor: 'pointer' }}>
               <Image
-                src="/reservoirLogo.svg"
+                src={theme === 'dark' ? '/NFA-logo-white.png' : '/NFA-logo-black.png'}
                 width={36}
                 height={36}
-                alt="Reservoir"
+                alt="NFA"
               />
             </Box>
           </Link>

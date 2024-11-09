@@ -16,8 +16,8 @@ type Props = {
  */
 export const Head: FC<Props> = ({
   ogImage = 'https://explorer.reservoir.tools/og-image.png',
-  title = 'Reservoir | Multi-Chain NFT Explorer',
-  description = 'Reservoir Multi-Chain NFT Explorer is an open source NFT explorer built with Reservoir.',
+  title = 'NFA Marketplace',
+  description = 'Marketplace for NFA',
   metatags = null,
 }) => {
   return (

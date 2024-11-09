@@ -65,7 +65,7 @@ export const Modal = forwardRef<ElementRef<typeof Dialog>, Props>(
         <Flex
           css={{
             p: 16,
-            backgroundColor: '$gray3',
+            backgroundColor: '$neutralBg',
             alignItems: 'center',
             justifyContent: 'space-between',
             borderTopRightRadius: '$borderRadius',

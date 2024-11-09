@@ -20,9 +20,9 @@ import {
   useTrendingMints,
 } from '@reservoir0x/reservoir-kit-ui'
 import ChainToggle from 'components/common/ChainToggle'
-import CollectionsTimeDropdown, {
+import CollectionsTimeSelector, {
   CollectionsSortingOption,
-} from 'components/common/CollectionsTimeDropdown'
+} from 'components/common/CollectionsTimeSelector'
 import MintsPeriodDropdown, {
   MintsSortingOption,
 } from 'components/common/MintsPeriodDropdown'
@@ -154,15 +154,14 @@ const Home: NextPage<Props> = ({ ssr }) => {
   >['volumeKey'] = '1day'
 
   switch (sortByTime) {
-    case '30d':
-      volumeKey = '30day'
-      break
     case '7d':
       volumeKey = '7day'
       break
     case '24h':
       volumeKey = '1day'
       break
+    default:
+      volumeKey = '1day'
   }
 
   const dummyStreams = [
@@ -351,7 +350,7 @@ const Home: NextPage<Props> = ({ ssr }) => {
               </Text>
               <Flex align="center" css={{ gap: '$4' }}>
                 {tab === 'collections' ? (
-                  <CollectionsTimeDropdown
+                  <CollectionsTimeSelector
                     compact={true}
                     option={sortByTime}
                     onOptionSelected={(option) => {
@@ -480,85 +479,78 @@ export const getServerSideProps: GetServerSideProps<{
     featuredCollections: TrendingCollectionsSchema
   }
 }> = async ({ params, res }) => {
-  const chainPrefix = params?.chain || ''
-  const { reservoirBaseUrl } =
-    supportedChains.find((chain) => chain.routePrefix === chainPrefix) ||
-    DefaultChain
+  // Set smaller initial limit
+  const INITIAL_LIMIT = 10
 
+  const chainPrefix = params?.chain || ''
+  const chain = supportedChains.find((chain) => chain.routePrefix === chainPrefix) || DefaultChain
+  
   const headers: RequestInit = {
     headers: {
       'x-api-key': process.env.RESERVOIR_API_KEY || '',
     },
   }
 
-  let trendingCollectionsQuery: paths['/collections/trending/v1']['get']['parameters']['query'] =
-    {
-      period: '24h',
-      limit: 20,
-      sortBy: 'volume',
+  // Consolidated query parameters
+  const baseQuery = {
+    period: '24h' as const,
+    limit: INITIAL_LIMIT,
+  }
+
+  const queries = {
+    trending: { ...baseQuery, sortBy: 'volume' as const },
+    featured: { ...baseQuery, sortBy: 'sales' as const },
+    mints: { ...baseQuery, type: 'any' as const },
+  }
+
+  try {
+    const [trending, featured, mints] = await Promise.all([
+      fetcher(
+        `${chain.reservoirBaseUrl}/collections/trending/v1`,
+        queries.trending,
+        headers
+      ),
+      fetcher(
+        `${chain.reservoirBaseUrl}/collections/trending/v1`,
+        queries.featured,
+        headers
+      ),
+      fetcher(
+        `${chain.reservoirBaseUrl}/collections/trending-mints/v1`,
+        queries.mints,
+        headers
+      ),
+    ])
+
+    // Helper to safely extract data
+    const extractData = (response: any) => response?.data || {}
+
+    res.setHeader(
+      'Cache-Control',
+      'public, s-maxage=120, stale-while-revalidate=180'
+    )
+
+    return {
+      props: {
+        ssr: {
+          trendingCollections: extractData(trending),
+          featuredCollections: extractData(featured),
+          trendingMints: extractData(mints),
+        },
+      },
     }
-
-  const trendingCollectionsPromise = fetcher(
-    `${reservoirBaseUrl}/collections/trending/v1`,
-    trendingCollectionsQuery,
-    headers
-  )
-
-  let featuredCollectionQuery: paths['/collections/trending/v1']['get']['parameters']['query'] =
-    {
-      period: '24h',
-      limit: 20,
-      sortBy: 'sales',
+  } catch (error) {
+    console.error('Error fetching data:', error)
+    // Return empty data on error
+    return {
+      props: {
+        ssr: {
+          trendingCollections: {},
+          featuredCollections: {},
+          trendingMints: {},
+        },
+      },
     }
-
-  const featuredCollectionsPromise = fetcher(
-    `${reservoirBaseUrl}/collections/trending/v1`,
-    featuredCollectionQuery,
-    headers
-  )
-
-  let trendingMintsQuery: paths['/collections/trending-mints/v1']['get']['parameters']['query'] =
-    {
-      period: '24h',
-      limit: 20,
-      type: 'any',
-    }
-
-  const trendingMintsPromise = fetcher(
-    `${reservoirBaseUrl}/collections/trending-mints/v1`,
-    trendingMintsQuery,
-    headers
-  )
-
-  const promises = await Promise.allSettled([
-    trendingCollectionsPromise,
-    featuredCollectionsPromise,
-    trendingMintsPromise,
-  ]).catch((e) => {
-    console.error(e)
-  })
-
-  const trendingCollections: Props['ssr']['trendingCollections'] =
-    promises?.[0].status === 'fulfilled' && promises[0].value.data
-      ? (promises[0].value.data as Props['ssr']['trendingCollections'])
-      : {}
-  const featuredCollections: Props['ssr']['featuredCollections'] =
-    promises?.[1].status === 'fulfilled' && promises[1].value.data
-      ? (promises[1].value.data as Props['ssr']['featuredCollections'])
-      : {}
-
-  const trendingMints: Props['ssr']['trendingMints'] =
-    promises?.[1].status === 'fulfilled' && promises[1].value.data
-      ? (promises[1].value.data as Props['ssr']['trendingMints'])
-      : {}
-
-  res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=120, stale-while-revalidate=180'
-  )
-
-  return {
-    props: { ssr: { trendingCollections, trendingMints, featuredCollections } },
   }
 }
 

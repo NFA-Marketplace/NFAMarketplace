@@ -232,7 +232,7 @@ const RankingsTableRow: FC<RankingsTableRowProps> = ({
             logoHeight={14}
           />
         </TableCell>
-        <TableCell>
+        <TableCell css={{ textAlign: 'left' }}>
           <FormatCryptoCurrency
             amount={collection?.collectionVolume?.[volumeKey]}
             textStyle="subtitle1"
@@ -267,7 +267,7 @@ const TableHeading: React.FC<Pick<Props, 'volumeKey'>> = ({ volumeKey }) => (
       <TableCell
         desktopOnly={i > 2}
         key={heading}
-        css={{ textAlign: i === headings.length - 1 ? 'right' : 'left' }}
+        css={{ textAlign: i === headings.length - 1 ? 'left' : 'left' }}
       >
         <Text style="subtitle3" color="subtle">
           {heading === 'Volume' && `${volumeKey.replace('day', 'D')} `}

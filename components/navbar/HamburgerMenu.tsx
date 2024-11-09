@@ -17,6 +17,7 @@ import { FullscreenModal } from 'components/common/FullscreenModal'
 import { useENSResolver, useMarketplaceChain } from 'hooks'
 import ThemeSwitcher from 'components/navbar/ThemeSwitcher'
 import Wallet from 'components/navbar/Wallet'
+import { useTheme } from 'next-themes'
 
 const HamburgerMenu = () => {
   const { address, isConnected } = useAccount()
@@ -27,6 +28,7 @@ const HamburgerMenu = () => {
   } = useENSResolver(address)
   const { disconnect } = useDisconnect()
   const { routePrefix } = useMarketplaceChain()
+  const { theme } = useTheme()
 
   const trigger = (
     <Button
@@ -59,14 +61,16 @@ const HamburgerMenu = () => {
           justify="between"
         >
           <Link href="/">
+          <Link href={`/${routePrefix}`}>
             <Box css={{ width: 46, cursor: 'pointer' }}>
               <Image
-                src="/reservoirLogo.svg"
-                width={36}
-                height={36}
-                alt="Reservoir"
+                src={theme === 'dark' ? '/NFA-logo-white.png' : '/NFA-logo-black.png'}
+                width={50}
+                height={50}
+                alt="NFA"
               />
             </Box>
+          </Link>
           </Link>
           <RadixDialog.Close>
             <Flex
@@ -297,7 +301,7 @@ const HamburgerMenu = () => {
             borderTop: '1px solid $gray4',
           }}
         >
-          <a href="https://twitter.com/reservoir0x" target="_blank">
+          <a href="https://x.com/NFA_Inc" target="_blank" rel="noopener noreferrer">
             <Button
               css={{ justifyContent: 'center', width: '44px', height: '44px' }}
               type="button"
