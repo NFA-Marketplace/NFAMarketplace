@@ -86,61 +86,51 @@ export const FeaturedCards: React.FC<FeaturedCardsProps> = ({
                 <Flex
                   direction="column"
                   css={{
-                    width: '280px',
-                    height: '290px',
+                    width: '300px',
+                    height: '300px',
                     borderRadius: 12,
                     cursor: 'pointer',
                     background: '$neutralBgSubtle',
                     $$shadowColor: '$colors$panelShadow',
                     boxShadow: '0px 0px 12px 0px $$shadowColor',
                     p: '0',
+                    position: 'relative',
+                    overflow: 'hidden',
                   }}
                 >
-                  <Flex
-                    css={{
-                      mb: '24px',
+                  <Img
+                    src={collection?.banner as string}
+                    alt={collection.name as string}
+                    width={400}
+                    height={400}
+                    style={{
                       width: '100%',
                       height: '100%',
-                      position: 'relative',
+                      objectFit: 'cover',
+                      borderRadius: '12px',
                     }}
-                  >
-                    <Flex
-                      css={{
-                        height: '150px',
-                        width: '100%',
-                      }}
-                    >
-                      <Img
-                        src={collection?.banner as string}
-                        alt={collection.name as string}
-                        height={150}
-                        width={280}
-                        style={{
-                          objectFit: 'cover',
-                          borderRadius: '12px 12px 0 0',
-                        }}
-                      />
-                    </Flex>
-                    <Img
-                      src={collection?.image as string}
-                      alt={collection.name as string}
-                      height={50}
-                      width={50}
-                      css={{
-                        height: '50px',
-                        width: '50px',
-                        position: 'absolute',
-                        inset: '95px 0px 5px 16px',
-                        border: '2px solid white',
-                        borderRadius: 8,
-                      }}
-                    />
-                  </Flex>
+                    unoptimized
+                    priority
+                  />
+                  
+                  <Box
+                    css={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)',
+                      height: '70%',
+                      borderRadius: '0 0 12px 12px',
+                    }}
+                  />
+
                   <Flex
                     direction="column"
                     css={{
+                      position: 'absolute',
+                      bottom: 0,
                       width: '100%',
-                      height: '100%',
                       px: '16px',
                       pb: '16px',
                     }}
@@ -153,7 +143,7 @@ export const FeaturedCards: React.FC<FeaturedCardsProps> = ({
                         flex: 1,
                         fontWeight: 400,
                         display: '-webkit-box',
-                        color: '$gray12',
+                        color: '$whiteA12',
                         fontFamily: '$body',
                         WebkitLineClamp: 3,
                         WebkitBoxOrient: 'vertical',
@@ -175,18 +165,13 @@ export const FeaturedCards: React.FC<FeaturedCardsProps> = ({
                           gap: '$2',
                         }}
                       >
-                        <Text style="h6" as="h6" ellipsify>
+                        <Text style="h6" as="h6" ellipsify css={{ color: '$whiteA12' }}>
                           {collection?.name}
                         </Text>
                       </Flex>
                       <Flex>
                         <Box css={{ mr: '$5' }}>
-                          <Text
-                            style="subtitle2"
-                            color="subtle"
-                            as="p"
-                            css={{ mb: 2 }}
-                          >
+                          <Text style="subtitle2" css={{ mb: 2, color: '$whiteA11' }}>
                             Floor
                           </Text>
                           <FormatCryptoCurrency
@@ -202,10 +187,10 @@ export const FeaturedCards: React.FC<FeaturedCardsProps> = ({
                         </Box>
 
                         <Box css={{ mr: '$4' }}>
-                          <Text style="subtitle2" color="subtle" as="p">
+                          <Text style="subtitle2" css={{ color: '$whiteA11' }}>
                             6h Sales
                           </Text>
-                          <Text style="h6" as="h4" css={{ mt: 2 }}>
+                          <Text style="h6" as="h4" css={{ mt: 2, color: '$whiteA12' }}>
                             {collection.count?.toLocaleString()}
                           </Text>
                         </Box>

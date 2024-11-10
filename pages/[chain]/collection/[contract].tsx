@@ -62,6 +62,9 @@ import { CollectionDetails } from 'components/collections/CollectionDetails'
 import useTokenUpdateStream from 'hooks/useTokenUpdateStream'
 import LiveState from 'components/common/LiveState'
 import { Address } from 'viem'
+import { styled } from 'stitches.config'
+
+const StyledImage = styled('img', {})
 
 type ActivityTypes = Exclude<
   NonNullable<
@@ -393,151 +396,150 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
           </>
         }
       />
-      <Tabs.Root
-        defaultValue="items"
-        onValueChange={(value) => {
-          if (value === 'items') {
-            resetCache()
-            setSize(1)
-            mutate()
-          }
-        }}
-      >
-        {collection ? (
-          <Flex
-            direction="column"
+      <Box css={{ position: 'relative' }}>
+        {collection?.banner ? (
+          <StyledImage
+            src={optimizeImage(collection?.banner, 1440)}
             css={{
-              px: '$4',
-              pt: '$4',
-              pb: 0,
-              '@md': {
-                px: '$5',
-              },
-
-              '@xl': {
-                px: '$6',
-              },
+              borderRadius: 8,
+              borderBottomLeftRadius: 0,
+              borderBottomRightRadius: 0,
+              width: '100%',
+              height: 400,
+              objectFit: 'cover',
             }}
+          />
+        ) : null}
+        <Box
+          css={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)',
+            padding: '$4',
+            '@md': { padding: '$5' },
+            '@xl': { padding: '$6' },
+          }}
+        >
+          <Flex
+            justify="between"
+            wrap="wrap"
+            css={{ gap: '$4' }}
+            align="start"
           >
             <Flex
-              justify="between"
-              wrap="wrap"
-              css={{ mb: '$4', gap: '$4' }}
-              align="start"
+              direction="column"
+              css={{
+                gap: '$4',
+                minWidth: 0,
+                //flex: 1,
+                width: '100%',
+                '@lg': { width: 'unset' },
+              }}
             >
-              <Flex
-                direction="column"
-                css={{
-                  gap: '$4',
-                  minWidth: 0,
-                  //flex: 1,
-                  width: '100%',
-                  '@lg': { width: 'unset' },
-                }}
-              >
-                <Flex css={{ gap: '$4', flex: 1 }} align="center">
-                  <Img
-                    src={optimizeImage(collection.image!, 72 * 2)}
-                    width={72}
-                    height={72}
+              <Flex css={{ gap: '$4', flex: 1 }} align="center">
+                <Img
+                  src={optimizeImage(collection?.image || '', 72 * 2)}
+                  width={72}
+                  height={72}
+                  css={{
+                    width: 72,
+                    height: 72,
+                    borderRadius: 8,
+                    objectFit: 'cover',
+                    border: '1px solid $gray5',
+                  }}
+                  alt="Collection Page Image"
+                />
+                <Box css={{ minWidth: 0 }}>
+                  <Flex align="center" css={{ gap: '$1', mb: 0 }}>
+                    <Text style="h4" as="h6" ellipsify>
+                      {collection?.name || ''}
+                    </Text>
+                    <OpenSeaVerified
+                      openseaVerificationStatus={
+                        collection?.openseaVerificationStatus
+                      }
+                    />
+                  </Flex>
+                  <Flex
                     css={{
-                      width: 72,
-                      height: 72,
-                      borderRadius: 8,
-                      objectFit: 'cover',
-                      border: '1px solid $gray5',
+                      gap: '$3',
+                      ...(isSmallDevice && {
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
+                      }),
                     }}
-                    alt="Collection Page Image"
-                  />
-                  <Box css={{ minWidth: 0 }}>
-                    <Flex align="center" css={{ gap: '$1', mb: 0 }}>
-                      <Text style="h4" as="h6" ellipsify>
-                        {collection.name}
-                      </Text>
-                      <OpenSeaVerified
-                        openseaVerificationStatus={
-                          collection?.openseaVerificationStatus
-                        }
-                      />
-                    </Flex>
-                    <Flex
+                    align="center"
+                  >
+                    <CopyText
+                      text={collection?.id?.toString() || ''}
                       css={{
-                        gap: '$3',
-                        ...(isSmallDevice && {
-                          display: 'grid',
-                          gridTemplateColumns: '1fr 1fr',
-                        }),
+                        width: 'max-content',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '$1',
                       }}
-                      align="center"
                     >
-                      <CopyText
-                        text={collection.id as string}
-                        css={{
-                          width: 'max-content',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '$1',
-                        }}
-                      >
-                        <Box css={{ color: '$gray9' }}>
-                          <FontAwesomeIcon icon={faCube} size="xs" />
-                        </Box>
-                        <Text as="p" style="body3">
-                          {truncateAddress(collection?.primaryContract || '')}
-                        </Text>
-                      </CopyText>
+                      <Box css={{ color: '$gray9' }}>
+                        <FontAwesomeIcon icon={faCube} size="xs" />
+                      </Box>
+                      <Text as="p" style="body3">
+                        {truncateAddress(collection?.primaryContract || '')}
+                      </Text>
+                    </CopyText>
+                    <Flex
+                      align="center"
+                      css={{
+                        gap: '$1',
+                      }}
+                    >
                       <Flex
-                        align="center"
                         css={{
-                          gap: '$1',
+                          color: '$gray9',
                         }}
                       >
-                        <Flex
-                          css={{
-                            color: '$gray9',
-                          }}
-                        >
-                          <FontAwesomeIcon size="xs" icon={faCog} />
-                        </Flex>
-                        <Text style="body3">{contractKind}</Text>
+                        <FontAwesomeIcon size="xs" icon={faCog} />
                       </Flex>
-
-                      <Flex
-                        align="center"
-                        css={{
-                          gap: '$1',
-                        }}
-                      >
-                        <Flex
-                          css={{
-                            color: '$gray9',
-                          }}
-                        >
-                          <FontAwesomeIcon size="xs" icon={faGlobe} />
-                        </Flex>
-                        <Text style="body3">{chainName}</Text>
-                      </Flex>
-
-                      {mintData && (
-                        <Flex
-                          align="center"
-                          css={{
-                            gap: '$1',
-                          }}
-                        >
-                          <Flex
-                            css={{
-                              color: '$green9',
-                            }}
-                          >
-                            <FontAwesomeIcon size="xs" icon={faSeedling} />
-                          </Flex>
-                          <Text style="body3">Minting Now</Text>
-                        </Flex>
-                      )}
+                      <Text style="body3">{contractKind}</Text>
                     </Flex>
-                  </Box>
-                </Flex>
+
+                    <Flex
+                      align="center"
+                      css={{
+                        gap: '$1',
+                      }}
+                    >
+                      <Flex
+                        css={{
+                          color: '$gray9',
+                        }}
+                      >
+                        <FontAwesomeIcon size="xs" icon={faGlobe} />
+                      </Flex>
+                      <Text style="body3">{chainName}</Text>
+                    </Flex>
+
+                    {mintData && (
+                      <Flex
+                        align="center"
+                        css={{
+                          gap: '$1',
+                        }}
+                      >
+                        <Flex
+                          css={{
+                            color: '$green9',
+                          }}
+                        >
+                          <FontAwesomeIcon size="xs" icon={faSeedling} />
+                        </Flex>
+                        <Text style="body3">Minting Now</Text>
+                      </Flex>
+                    )}
+                  </Flex>
+                </Box>
               </Flex>
               <Flex align="center">
                 <Flex css={{ alignItems: 'center', gap: '$3' }}>
@@ -641,7 +643,35 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                 </Flex>
               </Flex>
             </Flex>
+          </Flex>
+        </Box>
+      </Box>
+      <Tabs.Root
+        defaultValue="items"
+        onValueChange={(value) => {
+          if (value === 'items') {
+            resetCache()
+            setSize(1)
+            mutate()
+          }
+        }}
+      >
+        {collection ? (
+          <Flex
+            direction="column"
+            css={{
+              px: '$4',
+              pt: '$4',
+              pb: 0,
+              '@md': {
+                px: '$5',
+              },
 
+              '@xl': {
+                px: '$6',
+              },
+            }}
+          >
             <TabsList css={{ mt: 0 }}>
               <TabsTrigger value="items">Items</TabsTrigger>
               <TabsTrigger value="details">Details</TabsTrigger>
@@ -954,71 +984,42 @@ export const getServerSideProps: GetServerSideProps<{
   id: string | undefined
 }> = async ({ params, res }) => {
   const id = params?.contract?.toString()
-  const { reservoirBaseUrl } =
-    supportedChains.find((chain) => params?.chain === chain.routePrefix) ||
-    DefaultChain
-  const headers: RequestInit = {
-    headers: {
-      'x-api-key': process.env.RESERVOIR_API_KEY || '',
-    },
+  const { reservoirBaseUrl } = supportedChains.find(
+    (chain) => params?.chain === chain.routePrefix
+  ) || DefaultChain
+
+  const headers = {
+    headers: { 'x-api-key': process.env.RESERVOIR_API_KEY || '' }
   }
 
-  let collectionQuery: paths['/collections/v7']['get']['parameters']['query'] =
-    {
+  const [collectionResponse, tokensResponse] = await Promise.allSettled([
+    fetcher(`${reservoirBaseUrl}/collections/v7`, {
       id,
       includeSalesCount: true,
       normalizeRoyalties: NORMALIZE_ROYALTIES,
-    }
+    }, headers),
+    
+    fetcher(`${reservoirBaseUrl}/tokens/v6`, {
+      collection: id,
+      sortBy: 'floorAskPrice',
+      sortDirection: 'asc',
+      limit: 20,
+      normalizeRoyalties: NORMALIZE_ROYALTIES,
+      includeDynamicPricing: true,
+      includeAttributes: true,
+      includeQuantity: true,
+      includeLastSale: true,
+    }, headers)
+  ]).catch(() => [])
 
-  const collectionsPromise = fetcher(
-    `${reservoirBaseUrl}/collections/v7`,
-    collectionQuery,
-    headers,
-  )
+  const collection = collectionResponse?.status === 'fulfilled' ? collectionResponse.value.data : {}
+  const tokens = tokensResponse?.status === 'fulfilled' ? tokensResponse.value.data : {}
+  const hasAttributes = tokens?.tokens?.some((token: any) => (token?.token?.attributes?.length || 0) > 0) || false
 
-  let tokensQuery: paths['/tokens/v6']['get']['parameters']['query'] = {
-    collection: id,
-    sortBy: 'floorAskPrice',
-    sortDirection: 'asc',
-    limit: 20,
-    normalizeRoyalties: NORMALIZE_ROYALTIES,
-    includeDynamicPricing: true,
-    includeAttributes: true,
-    includeQuantity: true,
-    includeLastSale: true,
-  }
-
-  const tokensPromise = fetcher(
-    `${reservoirBaseUrl}/tokens/v6`,
-    tokensQuery,
-    headers,
-  )
-
-  const promises = await Promise.allSettled([
-    collectionsPromise,
-    tokensPromise,
-  ]).catch(() => {})
-  const collection: Props['ssr']['collection'] =
-    promises?.[0].status === 'fulfilled' && promises[0].value.data
-      ? (promises[0].value.data as Props['ssr']['collection'])
-      : {}
-  const tokens: Props['ssr']['tokens'] =
-    promises?.[1].status === 'fulfilled' && promises[1].value.data
-      ? (promises[1].value.data as Props['ssr']['tokens'])
-      : {}
-
-  const hasAttributes =
-    tokens?.tokens?.some(
-      (token) => (token?.token?.attributes?.length || 0) > 0,
-    ) || false
-
-  res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=30, stale-while-revalidate=60',
-  )
+  res.setHeader('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60')
 
   return {
-    props: { ssr: { collection, tokens, hasAttributes }, id },
+    props: { ssr: { collection, tokens, hasAttributes }, id }
   }
 }
 
