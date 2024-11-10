@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Box, Flex, Card, Text } from '../primitives'
 import GlobalSearch from './GlobalSearch'
 import { useRouter } from 'next/router'
@@ -40,6 +40,28 @@ const Navbar = () => {
     }
   })
 
+  const [visible, setVisible] = useState(true)
+  const lastScrollY = useRef(0)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      
+      if (currentScrollY > lastScrollY.current) {
+        // Scrolling down
+        setVisible(false)
+      } else {
+        // Scrolling up
+        setVisible(true)
+      }
+      
+      lastScrollY.current = currentScrollY
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   if (!isMounted) {
     return null
   }
@@ -52,11 +74,13 @@ const Navbar = () => {
         width: '100%',
         borderBottom: '1px solid $gray4',
         zIndex: 999,
-        background: '$slate1',
+        background: 'transparent',
         position: 'fixed',
         top: 0,
         left: 0,
         right: 0,
+        transform: visible ? 'translateY(0)' : 'translateY(-100%)',
+        transition: 'transform 0.3s ease-in-out',
       }}
       align="center"
       justify="between"
@@ -90,15 +114,16 @@ const Navbar = () => {
           px: '$6',
         },
         width: '100%',
-        // maxWidth: 1920,
         mx: 'auto',
         borderBottom: '1px solid $gray4',
         zIndex: 999,
-        background: '$neutralBg',
+        background: 'black',
         position: 'fixed',
         top: 0,
         left: 0,
         right: 0,
+        transform: visible ? 'translateY(0)' : 'translateY(-100%)',
+        transition: 'transform 0.3s ease-in-out',
       }}
       align="center"
       justify="between"

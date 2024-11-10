@@ -80,7 +80,7 @@ type Props = InferGetServerSidePropsType<typeof getServerSideProps>
 const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
   const router = useRouter()
   const { address } = useAccount()
-  const [attributeFiltersOpen, setAttributeFiltersOpen] = useState(false)
+  const [attributeFiltersOpen, setAttributeFiltersOpen] = useState(true)
   const [activityFiltersOpen, setActivityFiltersOpen] = useState(true)
   const [tokenSearchQuery, setTokenSearchQuery] = useState<string>('')
   const chainCurrency = useChainCurrency()
