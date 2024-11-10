@@ -117,7 +117,7 @@ const Navbar = () => {
         mx: 'auto',
         borderBottom: '1px solid $gray4',
         zIndex: 999,
-        background: 'transparent',
+        backdropFilter: 'blur(10px)',
         position: 'fixed',
         top: 0,
         left: 0,
