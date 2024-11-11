@@ -411,8 +411,20 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
               height: 400,
               objectFit: 'cover',
             }}
+            alt={`${collection?.name} banner`}
           />
-        ) : null}
+        ) : (
+          <Box 
+            css={{
+              borderRadius: 8,
+              borderBottomLeftRadius: 0,
+              borderBottomRightRadius: 0,
+              width: '100%',
+              height: 400,
+              background: '$gray3',
+            }}
+          />
+        )}
         <Box
           css={{
             position: 'absolute',

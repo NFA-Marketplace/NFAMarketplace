@@ -35,6 +35,7 @@ export const SearchChainSwitcher: FC<Props> = ({
       css={{
         pb: '$1',
         borderRadius: 0,
+        backgroundColor: 'transparent',
         gap: 0,
         overflow: 'auto',
         width: '100%',
