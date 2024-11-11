@@ -98,20 +98,31 @@ export const FeaturedCards: React.FC<FeaturedCardsProps> = ({
                     overflow: 'hidden',
                   }}
                 >
-                  <Img
-                    src={collection?.banner as string}
-                    alt={collection.name as string}
-                    width={400}
-                    height={400}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      borderRadius: '12px',
-                    }}
-                    unoptimized
-                    priority
-                  />
+                  {collection?.banner ? (
+                    <Img
+                      src={collection.banner}
+                      alt={collection.name as string}
+                      width={400}
+                      height={400}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: '12px',
+                      }}
+                      unoptimized
+                      priority
+                    />
+                  ) : (
+                    <Box
+                      css={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, $gray4 0%, $gray6 100%)',
+                      }}
+                    />
+                  )}
                   
                   <Box
                     css={{
