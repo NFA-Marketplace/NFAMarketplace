@@ -14,7 +14,7 @@ import {
 } from 'components/primitives'
 import Img from 'components/primitives/Img'
 import { PercentChange } from 'components/primitives/PercentChange'
-import { useMarketplaceChain } from 'hooks'
+import { useMarketplaceChain, useScrollDirection } from 'hooks'
 import Link from 'next/link'
 import { ComponentPropsWithoutRef, FC, useMemo } from 'react'
 import { useMediaQuery } from 'react-responsive'
@@ -251,29 +251,34 @@ const headings = [
   'Volume',
 ]
 
-const TableHeading: React.FC<Pick<Props, 'volumeKey'>> = ({ volumeKey }) => (
-  <HeaderRow
-    css={{
-      display: 'none',
-      ...gridColumns,
-      '@md': { display: 'grid', ...gridColumns['@md'] },
-      position: 'sticky',
-      top: NAVBAR_HEIGHT,
-      backgroundColor: '$neutralBg',
-      zIndex: 1,
-    }}
-  >
-    {headings.map((heading, i) => (
-      <TableCell
-        desktopOnly={i > 2}
-        key={heading}
-        css={{ textAlign: i === headings.length - 1 ? 'left' : 'left' }}
-      >
-        <Text style="subtitle3" color="subtle">
-          {heading === 'Volume' && `${volumeKey.replace('day', 'D')} `}
-          {heading}
-        </Text>
-      </TableCell>
-    ))}
-  </HeaderRow>
-)
+const TableHeading: React.FC<Pick<Props, 'volumeKey'>> = ({ volumeKey }) => {
+  const scrollDirection = useScrollDirection()
+  
+  return (
+    <HeaderRow
+      css={{
+        display: 'none',
+        ...gridColumns,
+        '@md': { display: 'grid', ...gridColumns['@md'] },
+        position: 'sticky',
+        top: scrollDirection === 'down' ? 0 : NAVBAR_HEIGHT,
+        backgroundColor: '$neutralBg',
+        zIndex: 1,
+        transition: 'top 0.3s ease-in-out',
+      }}
+    >
+      {headings.map((heading, i) => (
+        <TableCell
+          desktopOnly={i > 2}
+          key={heading}
+          css={{ textAlign: i === headings.length - 1 ? 'left' : 'left' }}
+        >
+          <Text style="subtitle3" color="subtle">
+            {heading === 'Volume' && `${volumeKey.replace('day', 'D')} `}
+            {heading}
+          </Text>
+        </TableCell>
+      ))}
+    </HeaderRow>
+  )
+}

@@ -97,8 +97,10 @@ const Home: NextPage<Props> = ({ ssr }) => {
 
   const { chain, switchCurrentChain } = useContext(ChainContext)
 
+  const [isChangingChain, setIsChangingChain] = useState(false)
+
   useEffect(() => {
-    if (router.query.chain) {
+    if (router.query.chain && isChangingChain) {
       let chainIndex: number | undefined
       for (let i = 0; i < supportedChains.length; i++) {
         if (supportedChains[i].routePrefix == router.query.chain) {
@@ -107,9 +109,16 @@ const Home: NextPage<Props> = ({ ssr }) => {
       }
       if (chainIndex !== -1 && chainIndex) {
         switchCurrentChain(chainIndex)
+        setIsChangingChain(false)
+        window.location.href = `/${router.query.chain}`
       }
     }
-  }, [router.query])
+  }, [router.query.chain, isChangingChain])
+
+  // Pass this to ChainToggle
+  const handleChainChange = () => {
+    setIsChangingChain(true)
+  }
 
   const {
     data: trendingCollections,
@@ -287,6 +296,7 @@ const Home: NextPage<Props> = ({ ssr }) => {
             <Text style="h4" as="h4">
               Top Traders
             </Text>
+            <ChainToggle onChainChange={handleChainChange} />
           </Flex>
           <Box
             css={{
@@ -443,7 +453,7 @@ const Home: NextPage<Props> = ({ ssr }) => {
             },
           }}
         >
-          <Link href={`/${marketplaceChain.routePrefix}/${tab}/trending`}>
+          <Link href={`/${chain.routePrefix}/${tab}/trending`}>
             <Button
               css={{
                 background: '$primary9',

@@ -287,7 +287,12 @@ const HamburgerMenu = () => {
             borderTop: '1px solid $gray4',
           }}
         >
-          <a href="https://x.com/NFA_Inc" target="_blank" rel="noopener noreferrer">
+          <a 
+            href="https://x.com/NFA_Inc" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            aria-label="Follow us on X (formerly Twitter)"
+          >
             <Button
               css={{ justifyContent: 'center', width: '44px', height: '44px' }}
               type="button"

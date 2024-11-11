@@ -6,6 +6,7 @@ import {
   Input,
   FormatCrypto,
   FormatCryptoCurrency,
+  Button,
 } from '../../../components/primitives'
 import {
   useCollections,
@@ -119,11 +120,10 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
 
   let chainName = collectionChain?.name
 
-  let collectionQuery: Parameters<typeof useCollections>['0'] = {
+  let collectionQuery: paths['/collections/v7']['get']['parameters']['query'] = {
     id,
     includeSalesCount: true,
-    includeMintStages: true,
-    includeSecurityConfigs: true,
+    normalizeRoyalties: NORMALIZE_ROYALTIES,
   }
 
   const { data: collections } = useCollections(collectionQuery, {
@@ -148,11 +148,14 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
         : `${mintPriceDecimal} ${mintCurrency}`
       : undefined
 
-  let tokenQuery: Parameters<typeof useDynamicTokens>['0'] = {
-    limit: 20,
+  let tokenQuery: paths['/tokens/v6']['get']['parameters']['query'] = {
     collection: id,
     sortBy: 'floorAskPrice',
     sortDirection: 'asc',
+    limit: 20,
+    normalizeRoyalties: NORMALIZE_ROYALTIES,
+    includeDynamicPricing: true,
+    includeAttributes: true,
     includeQuantity: true,
     includeLastSale: true,
     ...(debouncedSearch.length > 0 && {
@@ -343,7 +346,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
 
   useEffect(() => {
     const isVisible = !!loadMoreObserver?.isIntersecting
-    if (isVisible) {
+    if (isVisible && hasNextPage) {
       fetchNextPage()
     }
   }, [loadMoreObserver?.isIntersecting])
@@ -979,47 +982,91 @@ export const getServerSideProps: GetServerSideProps<{
   ssr: {
     collection?: paths['/collections/v7']['get']['responses']['200']['schema']
     tokens?: paths['/tokens/v6']['get']['responses']['200']['schema']
+    attributes?: paths['/collections/{collection}/attributes/explore/v6']['get']['responses']['200']['schema']
     hasAttributes: boolean
   }
   id: string | undefined
 }> = async ({ params, res }) => {
   const id = params?.contract?.toString()
-  const { reservoirBaseUrl } = supportedChains.find(
-    (chain) => params?.chain === chain.routePrefix
-  ) || DefaultChain
-
-  const headers = {
-    headers: { 'x-api-key': process.env.RESERVOIR_API_KEY || '' }
+  const { reservoirBaseUrl } =
+    supportedChains.find((chain) => params?.chain === chain.routePrefix) ||
+    DefaultChain
+  const headers: RequestInit = {
+    headers: {
+      'x-api-key': process.env.RESERVOIR_API_KEY || '',
+    },
   }
 
-  const [collectionResponse, tokensResponse] = await Promise.allSettled([
-    fetcher(`${reservoirBaseUrl}/collections/v7`, {
+  let collectionQuery: paths['/collections/v7']['get']['parameters']['query'] =
+    {
       id,
       includeSalesCount: true,
       normalizeRoyalties: NORMALIZE_ROYALTIES,
-    }, headers),
-    
-    fetcher(`${reservoirBaseUrl}/tokens/v6`, {
-      collection: id,
-      sortBy: 'floorAskPrice',
-      sortDirection: 'asc',
-      limit: 20,
-      normalizeRoyalties: NORMALIZE_ROYALTIES,
-      includeDynamicPricing: true,
-      includeAttributes: true,
-      includeQuantity: true,
-      includeLastSale: true,
-    }, headers)
-  ]).catch(() => [])
+    }
 
-  const collection = collectionResponse?.status === 'fulfilled' ? collectionResponse.value.data : {}
-  const tokens = tokensResponse?.status === 'fulfilled' ? tokensResponse.value.data : {}
-  const hasAttributes = tokens?.tokens?.some((token: any) => (token?.token?.attributes?.length || 0) > 0) || false
+  const collectionsPromise = fetcher(
+    `${reservoirBaseUrl}/collections/v7`,
+    collectionQuery,
+    headers,
+  )
 
-  res.setHeader('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60')
+  let tokensQuery: paths['/tokens/v6']['get']['parameters']['query'] = {
+    collection: id,
+    sortBy: 'floorAskPrice',
+    sortDirection: 'asc',
+    limit: 20,
+    normalizeRoyalties: NORMALIZE_ROYALTIES,
+    includeDynamicPricing: true,
+    includeAttributes: true,
+    includeQuantity: true,
+    includeLastSale: true,
+  }
+
+  const tokensPromise = fetcher(
+    `${reservoirBaseUrl}/tokens/v6`,
+    tokensQuery,
+    headers,
+  )
+
+  const attributesPromise = fetcher(
+    `${reservoirBaseUrl}/collections/${id}/attributes/explore/v6`,
+    {},
+    headers
+  )
+
+  const promises = await Promise.allSettled([
+    collectionsPromise,
+    tokensPromise,
+    attributesPromise,
+  ]).catch(() => {})
+
+  const collection = promises?.[0].status === 'fulfilled' && promises[0].value.data
+    ? promises[0].value.data
+    : {}
+  const tokens = promises?.[1].status === 'fulfilled' && promises[1].value.data
+    ? promises[1].value.data
+    : {}
+  const attributes = promises?.[2].status === 'fulfilled' && promises[2].value.data
+    ? promises[2].value.data
+    : {}
+
+  const hasAttributes = attributes?.attributes?.length > 0 || false
+
+  res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=30, stale-while-revalidate=60',
+  )
 
   return {
-    props: { ssr: { collection, tokens, hasAttributes }, id }
+    props: { 
+      ssr: { 
+        collection, 
+        tokens, 
+        attributes, 
+        hasAttributes 
+      }, 
+      id 
+    },
   }
 }
 

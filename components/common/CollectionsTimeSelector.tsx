@@ -16,7 +16,7 @@ const sortingOptions: CollectionsSortingOption[] = [
 
 const StyledRadioGroup = styled(RadioGroup.Root, {
   display: 'flex',
-  background: '$gray3',
+  background: '$neutralBg',
   padding: '4px',
   borderRadius: '8px',
   gap: '4px',
@@ -43,7 +43,7 @@ const StyledRadioButton = styled(RadioGroup.Item, {
 const SlidingBackground = styled('div', {
   position: 'absolute',
   borderRadius: '8px',
-  backgroundColor: '$gray6',
+  backgroundColor: '$neutralBgActive',
   transition: 'transform 250ms ease',
   width: '48px',
   height: '32px',

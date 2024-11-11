@@ -26,6 +26,8 @@ import fetcher from 'utils/fetcher'
 type Props = InferGetServerSidePropsType<typeof getServerSideProps>
 
 const IndexPage: NextPage<Props> = ({ ssr }) => {
+  // Add these console.logs
+  console.log('SSR Data:', ssr.collections)
   const router = useRouter()
   const isSSR = typeof window === 'undefined'
   const isMounted = useMounted()
@@ -33,7 +35,7 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
   const [sortByTime, setSortByTime] = useState<CollectionsSortingOption>('24h')
 
   let collectionQuery: Parameters<typeof useTrendingCollections>['0'] = {
-    limit: 1000,
+    limit: 20,
     period: sortByTime,
   }
 
@@ -57,9 +59,10 @@ const IndexPage: NextPage<Props> = ({ ssr }) => {
     collectionQuery,
     chain.id,
     {
-      fallbackData: [ssr.collections],
+      fallbackData: ssr.collections
     }
   )
+  console.log('Hook Data:', data)
 
   let volumeKey: ComponentPropsWithoutRef<
     typeof CollectionRankingsTable
@@ -151,7 +154,7 @@ export const getServerSideProps: GetServerSideProps<{
 }> = async ({ res, params }) => {
   let collectionQuery: paths['/collections/trending/v1']['get']['parameters']['query'] =
     {
-      limit: 1000,
+      limit: 20,
       period: '24h',
     }
 
@@ -170,6 +173,9 @@ export const getServerSideProps: GetServerSideProps<{
       },
     }
   )
+
+  // Add this console.log to debug
+  console.log('API Response:', response.data)
 
   res.setHeader(
     'Cache-Control',

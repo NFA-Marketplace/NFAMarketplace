@@ -69,10 +69,11 @@ const CollectionsTimeDropdown: FC<Props> = ({
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <Button
-          color="gray3"
+          color="gray4"
           css={{
             px: '14px',
             justifyContent: 'space-between',
+            backgroundColor: '$neutralBg',
             '@md': {
               width: '220px',
               minWidth: 'max-content',
@@ -84,6 +85,7 @@ const CollectionsTimeDropdown: FC<Props> = ({
           <Box
             css={{
               color: '$gray10',
+              backgroundColor: '$neutralBg',
               transition: 'transform',
               '[data-state=open] &': { transform: 'rotate(180deg)' },
             }}
