@@ -90,9 +90,9 @@ const Navbar = () => {
           <Link href={`/${routePrefix}`}>
             <Box css={{ width: 46, cursor: 'pointer' }}>
               <Image
-                src={theme === 'dark' ? '/NFA-logo-white.png' : '/NFA-logo-black.png'}
-                width={50}
-                height={50}
+                src={theme === 'dark' ? '/oohhwwee.png' : '/oohhwwee.png'}
+                width={200}
+                height={200}
                 alt="NFA"
               />
             </Box>
@@ -140,9 +140,9 @@ const Navbar = () => {
           <Link href={`/${routePrefix}`}>
             <Box css={{ cursor: 'pointer' }}>
               <Image
-                src={theme === 'dark' ? '/NFA-logo-white.png' : '/NFA-logo-black.png'}
-                width={36}
-                height={36}
+                src={theme === 'dark' ? '/oohhwwee.png' : '/oohhwwee.png'}
+                width={200}
+                height={200}
                 alt="NFA"
               />
             </Box>
