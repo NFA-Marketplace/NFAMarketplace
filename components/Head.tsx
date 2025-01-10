@@ -16,8 +16,8 @@ type Props = {
  */
 export const Head: FC<Props> = ({
   ogImage = 'https://explorer.reservoir.tools/og-image.jpg',
-  title = 'NFA Marketplace',
-  description = 'Marketplace for NFA',
+  title = 'Oohhwwee',
+  description = 'Oohhwwee',
   metatags = null,
 }) => {
   return (
