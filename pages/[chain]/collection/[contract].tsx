@@ -78,6 +78,22 @@ type ActivityTypes = Exclude<
 
 type Props = InferGetServerSidePropsType<typeof getServerSideProps>
 
+const COLLECTION_QUERY: paths['/collections/v7']['get']['parameters']['query'] = {
+  includeSalesCount: true,
+  normalizeRoyalties: NORMALIZE_ROYALTIES,
+}
+
+const TOKENS_QUERY: paths['/tokens/v6']['get']['parameters']['query'] = {
+  sortBy: 'floorAskPrice',
+  sortDirection: 'asc',
+  limit: 20,
+  normalizeRoyalties: NORMALIZE_ROYALTIES,
+  includeDynamicPricing: true,
+  includeAttributes: true,
+  includeQuantity: true,
+  includeLastSale: true,
+}
+
 const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
   const router = useRouter()
   const { address } = useAccount()
@@ -106,6 +122,8 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
   const isMintRoute = routerPath[routerPath.length - 1] === 'mint'
   const sweepOpenState = useState(true)
   const mintOpenState = useState(true)
+  const [sortBy, setSortBy] = useState<string>('floorAskPrice')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
 
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const collectionChain =
@@ -120,13 +138,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
 
   let chainName = collectionChain?.name
 
-  let collectionQuery: paths['/collections/v7']['get']['parameters']['query'] = {
-    id,
-    includeSalesCount: true,
-    normalizeRoyalties: NORMALIZE_ROYALTIES,
-  }
-
-  const { data: collections } = useCollections(collectionQuery, {
+  const { data: collections } = useCollections(COLLECTION_QUERY, {
     fallbackData: [ssr.collection],
   })
 
@@ -148,39 +160,6 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
         : `${mintPriceDecimal} ${mintCurrency}`
       : undefined
 
-  let tokenQuery: paths['/tokens/v6']['get']['parameters']['query'] = {
-    collection: id,
-    sortBy: 'floorAskPrice',
-    sortDirection: 'asc',
-    limit: 20,
-    normalizeRoyalties: NORMALIZE_ROYALTIES,
-    includeDynamicPricing: true,
-    includeAttributes: true,
-    includeQuantity: true,
-    includeLastSale: true,
-    ...(debouncedSearch.length > 0 && {
-      tokenName: debouncedSearch,
-    }),
-  }
-
-  const sortDirection = router.query['sortDirection']?.toString()
-  const sortBy = router.query['sortBy']?.toString()
-
-  if (sortBy === 'tokenId' || sortBy === 'rarity') tokenQuery.sortBy = sortBy
-  if (sortDirection === 'desc') tokenQuery.sortDirection = 'desc'
-
-  // Extract all queries of attribute type
-  Object.keys({ ...router.query }).map((key) => {
-    if (
-      key.startsWith('attributes[') &&
-      key.endsWith(']') &&
-      router.query[key] !== ''
-    ) {
-      //@ts-ignore
-      tokenQuery[key] = router.query[key]
-    }
-  })
-
   const {
     data: tokens,
     mutate,
@@ -190,7 +169,7 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
     isFetchingInitialData,
     isFetchingPage,
     hasNextPage,
-  } = useDynamicTokens(tokenQuery, {
+  } = useDynamicTokens(TOKENS_QUERY, {
     fallbackData: initialTokenFallbackData ? [ssr.tokens] : undefined,
   })
 
@@ -908,16 +887,17 @@ const CollectionPage: NextPage<Props> = ({ id, ssr }) => {
                       {(hasNextPage || isFetchingPage) &&
                         !isFetchingInitialData && <LoadingCard />}
                     </Box>
-                    {(hasNextPage || isFetchingPage) &&
-                      !isFetchingInitialData && (
-                        <>
-                          {Array(6)
-                            .fill(null)
-                            .map((_, index) => (
-                              <LoadingCard key={`loading-card-${index}`} />
-                            ))}
-                        </>
-                      )}
+                    {hasNextPage && !isFetchingInitialData && (
+                      <Flex justify="center" css={{ gridColumn: '1/-1', my: '$5' }}>
+                        <Button 
+                          disabled={isFetchingPage}
+                          onClick={() => fetchNextPage()}
+                          css={{ minWidth: 224 }}
+                        >
+                          {isFetchingPage ? 'Loading...' : 'Load More'}
+                        </Button>
+                      </Flex>
+                    )}
                   </Grid>
                   {tokens.length == 0 && !isFetchingPage && (
                     <Flex
@@ -1000,85 +980,58 @@ export const getServerSideProps: GetServerSideProps<{
   id: string | undefined
 }> = async ({ params, res }) => {
   const id = params?.contract?.toString()
-  const { reservoirBaseUrl } =
-    supportedChains.find((chain) => params?.chain === chain.routePrefix) ||
-    DefaultChain
+  const { reservoirBaseUrl } = supportedChains.find(
+    (chain) => params?.chain === chain.routePrefix
+  ) || DefaultChain
+  
   const headers: RequestInit = {
     headers: {
       'x-api-key': process.env.RESERVOIR_API_KEY || '',
     },
   }
 
-  let collectionQuery: paths['/collections/v7']['get']['parameters']['query'] =
-    {
-      id,
-      includeSalesCount: true,
-      normalizeRoyalties: NORMALIZE_ROYALTIES,
+  try {
+    const promises = await Promise.allSettled([
+      fetcher(
+        `${reservoirBaseUrl}/collections/v7`,
+        { ...COLLECTION_QUERY, id },
+        headers
+      ),
+      fetcher(
+        `${reservoirBaseUrl}/tokens/v6`,
+        { ...TOKENS_QUERY, collection: id },
+        headers
+      ),
+      fetcher(
+        `${reservoirBaseUrl}/collections/${id}/attributes/explore/v6`,
+        {},
+        headers
+      ),
+    ])
+
+    // Simplified result processing
+    const [collection, tokens, attributes] = promises.map(
+      (result) => (result.status === 'fulfilled' ? result.value.data : {})
+    )
+
+    const hasAttributes = attributes?.attributes?.length > 0 || false
+
+    res.setHeader(
+      'Cache-Control',
+      'public, s-maxage=30, stale-while-revalidate=60'
+    )
+
+    return {
+      props: { ssr: { collection, tokens, attributes, hasAttributes }, id },
     }
-
-  const collectionsPromise = fetcher(
-    `${reservoirBaseUrl}/collections/v7`,
-    collectionQuery,
-    headers,
-  )
-
-  let tokensQuery: paths['/tokens/v6']['get']['parameters']['query'] = {
-    collection: id,
-    sortBy: 'floorAskPrice',
-    sortDirection: 'asc',
-    limit: 20,
-    normalizeRoyalties: NORMALIZE_ROYALTIES,
-    includeDynamicPricing: true,
-    includeAttributes: true,
-    includeQuantity: true,
-    includeLastSale: true,
-  }
-
-  const tokensPromise = fetcher(
-    `${reservoirBaseUrl}/tokens/v6`,
-    tokensQuery,
-    headers,
-  )
-
-  const attributesPromise = fetcher(
-    `${reservoirBaseUrl}/collections/${id}/attributes/explore/v6`,
-    {},
-    headers
-  )
-
-  const promises = await Promise.allSettled([
-    collectionsPromise,
-    tokensPromise,
-    attributesPromise,
-  ]).catch(() => {})
-
-  const collection = promises?.[0].status === 'fulfilled' && promises[0].value.data
-    ? promises[0].value.data
-    : {}
-  const tokens = promises?.[1].status === 'fulfilled' && promises[1].value.data
-    ? promises[1].value.data
-    : {}
-  const attributes = promises?.[2].status === 'fulfilled' && promises[2].value.data
-    ? promises[2].value.data
-    : {}
-
-  const hasAttributes = attributes?.attributes?.length > 0 || false
-
-  res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=30, stale-while-revalidate=60',
-  )
-
-  return {
-    props: { 
-      ssr: { 
-        collection, 
-        tokens, 
-        attributes, 
-        hasAttributes 
-      }, 
-      id 
-    },
+  } catch (error) {
+    console.error('Error fetching collection data:', error)
+    return {
+      props: { 
+        ssr: { hasAttributes: false }, 
+        id 
+      },
+    }
   }
 }
 

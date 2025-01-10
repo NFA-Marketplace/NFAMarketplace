@@ -46,7 +46,7 @@ const Navbar = () => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY
-      
+
       if (currentScrollY > lastScrollY.current) {
         // Scrolling down
         setVisible(false)
@@ -54,7 +54,7 @@ const Navbar = () => {
         // Scrolling up
         setVisible(true)
       }
-      
+
       lastScrollY.current = currentScrollY
     }
 
@@ -233,9 +233,6 @@ const Navbar = () => {
               <HoverCard.Content sideOffset={24} align="start">
                 <Card css={{ p: 24, width: 240 }}>
                   <Flex css={{ gap: '$4' }} direction="column">
-                    <a target="_blank" href={`https://reservoir.tools`}>
-                      <NavItem>About Reservoir</NavItem>
-                    </a>
                     <a
                       target="_blank"
                       href={`https://docs.reservoir.tools/docs`}
@@ -263,6 +260,22 @@ const Navbar = () => {
             </HoverCard.Root>
           </Box>
         </Flex>
+        <NavItem>
+          <a
+            href="https://zodiacswap.com/?chainId=2016?source=oohhwwee"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Box css={{ width: 24, height: 24 }}>
+              <Image
+                src="/icons/zodiac.png"
+                alt="External Link"
+                width={24}
+                height={24}
+              />
+            </Box>
+          </a>
+        </NavItem>
         <ThemeSwitcher />
 
         {isConnected ? (

@@ -38,6 +38,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { styled } from 'stitches.config'
 import { TopTraders } from 'components/home/TopTraders'
 import { StreamCard } from 'components/home/StreamCard'
+import { useCollections } from '@reservoir0x/reservoir-kit-ui'
+import Image from 'next/image'
 
 type TabValue = 'collections' | 'mints'
 
@@ -222,6 +224,13 @@ const Home: NextPage<Props> = ({ ssr }) => {
     }, 1000)
   }, [])
 
+  const { data } = useCollections(
+    {
+      limit: 1,
+      id: '0x5f8ed33d9ec6b28daafa9a1f9fadff3d9f94e5fb',
+    }
+  )
+
   return (
     <Layout>
       <Head />
@@ -250,32 +259,88 @@ const Home: NextPage<Props> = ({ ssr }) => {
           }}
         >
           <Flex
-            direction="column"
             align="center"
+            justify="between"
             css={{
-              textAlign: 'center',
-              gap: '$4',
-              mb: '$4',
-              px: '$3',
+              gap: '$6',
+              flexDirection: 'column',
               '@bp800': {
-                mb: '$6',
+                flexDirection: 'row',
               },
             }}
           >
-            <Text
-              style="h2"
+            <Flex
+              direction="column"
               css={{
-                fontSize: '32px',
+                gap: '$4',
+                flex: 1,
+                textAlign: 'center',
                 '@bp800': {
-                  fontSize: '60px',
+                  textAlign: 'left',
                 },
               }}
             >
-              Explore, collect, and sell NFTs
-            </Text>
-            <Text style="body1" css={{ color: '$gray11', maxWidth: 600 }}>
-              The world's largest digital marketplace for crypto collectibles and non-fungible tokens
-            </Text>
+              <Box css={{ 
+                position: 'relative', 
+                width: '100%',
+                mb: '20px'
+              }}>
+                <Text style="h2" css={{
+                  fontSize: '32px',
+                  '@bp800': { fontSize: '60px' },
+                  mb: '$4'
+                }}>
+                  Featured Collection
+                </Text>
+                <meta property="fc:frame" content="vNext" />
+                <meta property="fc:frame:image" content={data?.[0]?.image || '/homies.jpeg'} />
+                <meta property="fc:frame:image:aspect_ratio" content="1:1" />
+                <Box css={{ 
+                  position: 'relative',
+                  width: '100%',
+                  height: '400px',
+                  '@bp800': { height: '500px' }
+                }}>
+                  <Image 
+                    src={data?.[0]?.image || '/homies.jpeg'}
+                    alt={data?.[0]?.name || 'Featured Collection'}
+                    fill
+                    style={{ 
+                      objectFit: 'cover',
+                      borderRadius: '12px'
+                    }}
+                  />
+                </Box>
+              </Box>
+              <Link href={`/${chain.routePrefix}/collection/0x5f8ed33d9ec6b28daafa9a1f9fadff3d9f94e5fb`}>
+                <Button css={{
+                  background: '$primary9',
+                  color: 'white',
+                  mt: '$4',
+                  '&:hover': { background: '$primary10' },
+                }}>
+                  View Collection
+                </Button>
+              </Link>
+            </Flex>
+            {data?.[0]?.image && (
+              <Box css={{
+                position: 'relative',
+                width: '300px',
+                height: '300px',
+                '@bp800': {
+                  width: '400px',
+                  height: '400px',
+                },
+              }}>
+                <Image
+                  src={data?.[0]?.image}
+                  alt={data?.[0]?.name || 'Featured Collection'}
+                  fill
+                  style={{ objectFit: 'cover', borderRadius: '12px' }}
+                />
+              </Box>
+            )}
           </Flex>
         </Box>
 
