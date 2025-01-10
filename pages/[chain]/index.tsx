@@ -537,7 +537,7 @@ const Home: NextPage<Props> = ({ ssr }) => {
           </Link>
         </Box>
       </Box>
-      <Footer />
+      {/* <Footer /> */}
     </Layout>
   )
 }
