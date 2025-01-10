@@ -35,12 +35,12 @@ class MyDocument extends Document {
         <link
           rel="shortcut icon"
           type="image/png"
-          href="/NFA-logo-gold.png"
+          href="/oohhwwee.png"
         />
 
         {/* Reservoir meta tags */}
-        <meta property="reservoir:title" content="NFA Marketplace" />
-        <meta property="reservoir:icon" content="/NFA-logo-gold.png" />
+        <meta property="reservoir:title" content="Oohhwwee" />
+        <meta property="reservoir:icon" content="oohhwwee.png" />
         <meta
           property="reservoir:token-url-mainnet"
           content="/ethereum/asset/${contract}:${tokenId}"
