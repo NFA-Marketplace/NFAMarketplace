@@ -90,7 +90,7 @@ const Navbar = () => {
           <Link href={`/${routePrefix}`}>
             <Box css={{ width: 46, cursor: 'pointer' }}>
               <Image
-                src={theme === 'dark' ? '/oohhwwee.png' : '/oohhwwee.png'}
+                src={theme === 'dark' ? '/oohhwweeIcon.png' : '/oohhwweeIcon.png'}
                 width={200}
                 height={200}
                 alt="NFA"
@@ -262,7 +262,7 @@ const Navbar = () => {
         </Flex>
         <NavItem>
           <a
-            href="https://zodiacswap.com/?chainId=2016?source=oohhwwee"
+            href="https://zodiacswap.com/?chainId=2016"
             target="_blank"
             rel="noopener noreferrer"
           >

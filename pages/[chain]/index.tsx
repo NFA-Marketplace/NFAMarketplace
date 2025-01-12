@@ -258,90 +258,121 @@ const Home: NextPage<Props> = ({ ssr }) => {
             },
           }}
         >
-          <Flex
-            align="center"
-            justify="between"
-            css={{
-              gap: '$6',
-              flexDirection: 'column',
-              '@bp800': {
-                flexDirection: 'row',
-              },
-            }}
-          >
-            <Flex
-              direction="column"
-              css={{
-                gap: '$4',
-                flex: 1,
-                textAlign: 'center',
-                '@bp800': {
-                  textAlign: 'left',
-                },
-              }}
-            >
+          <Text style="h2" css={{
+            fontSize: '32px',
+            '@bp800': { fontSize: '60px' },
+            mb: '$4'
+          }}>
+            Featured Collections
+          </Text>
+          
+          <Box css={{ 
+            position: 'relative',
+            width: '100%',
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            msOverflowStyle: 'none',
+            scrollbarWidth: 'none',
+            '&::-webkit-scrollbar': { display: 'none' }
+          }}>
+            <Flex css={{ gap: '$4', minWidth: 'min-content' }}>
+              {/* Collection 1 */}
               <Box css={{ 
-                position: 'relative', 
+                flex: '0 0 auto',
                 width: '100%',
-                mb: '20px'
+                maxWidth: '530px'
               }}>
-                <Text style="h2" css={{
-                  fontSize: '32px',
-                  '@bp800': { fontSize: '60px' },
-                  mb: '$4'
-                }}>
-                  Featured Collection
-                </Text>
-                <meta property="fc:frame" content="vNext" />
-                <meta property="fc:frame:image" content={data?.[0]?.image || '/homies.jpeg'} />
-                <meta property="fc:frame:image:aspect_ratio" content="1:1" />
                 <Box css={{ 
                   position: 'relative',
                   width: '100%',
-                  height: '400px',
-                  '@bp800': { height: '500px' }
+                  height: '300px',
+                  '@bp800': { height: '400px' }
                 }}>
                   <Image 
-                    src={data?.[0]?.image || '/homies.jpeg'}
-                    alt={data?.[0]?.name || 'Featured Collection'}
+                    src="/homies.jpeg"
+                    alt="Crypto Homies"
                     fill
-                    style={{ 
-                      objectFit: 'cover',
-                      borderRadius: '12px'
-                    }}
+                    style={{ objectFit: 'cover', borderRadius: '12px' }}
                   />
                 </Box>
+                <Link href={`/${chain.routePrefix}/collection/0x5f8ed33d9ec6b28daafa9a1f9fadff3d9f94e5fb`}>
+                  <Button css={{
+                    background: '$primary9',
+                    color: 'white',
+                    mt: '$4',
+                    width: '100%',
+                    '&:hover': { background: '$primary10' },
+                  }}>
+                    View Crypto Homies
+                  </Button>
+                </Link>
               </Box>
-              <Link href={`/${chain.routePrefix}/collection/0x5f8ed33d9ec6b28daafa9a1f9fadff3d9f94e5fb`}>
-                <Button css={{
-                  background: '$primary9',
-                  color: 'white',
-                  mt: '$4',
-                  '&:hover': { background: '$primary10' },
-                }}>
-                  View Collection
-                </Button>
-              </Link>
-            </Flex>
-            {data?.[0]?.image && (
-              <Box css={{
-                position: 'relative',
-                width: '300px',
-                height: '300px',
-                '@bp800': {
-                  width: '400px',
-                  height: '400px',
-                },
+
+              {/* Collection 2 */}
+              <Box css={{ 
+                flex: '0 0 auto',
+                width: '100%',
+                maxWidth: '530px'
               }}>
-                <Image
-                  src={data?.[0]?.image}
-                  alt={data?.[0]?.name || 'Featured Collection'}
-                  fill
-                  style={{ objectFit: 'cover', borderRadius: '12px' }}
-                />
+                <Box css={{ 
+                  position: 'relative',
+                  width: '100%',
+                  height: '300px',
+                  '@bp800': { height: '400px' }
+                }}>
+                  <Image 
+                    src="/zinu.png"
+                    alt="Zinu's Zombie Mob"
+                    fill
+                    style={{ objectFit: 'cover', borderRadius: '12px' }}
+                  />
+                </Box>
+                <Link href={`/${chain.routePrefix}/collection/0xc101916cd9ddeac5a6f915eed033b1b6e4a637cb`}>
+                  <Button css={{
+                    background: '$primary9',
+                    color: 'white',
+                    mt: '$4',
+                    width: '100%',
+                    '&:hover': { background: '$primary10' },
+                  }}>
+                    View Zinu's Zombie Mob Secret Society
+                  </Button>
+                </Link>
               </Box>
-            )}
-          </Flex>
+
+              {/* Collection 3 */}
+              <Box css={{ 
+                flex: '0 0 auto',
+                width: '100%',
+                maxWidth: '530px'
+              }}>
+                <Box css={{ 
+                  position: 'relative',
+                  width: '100%',
+                  height: '300px',
+                  '@bp800': { height: '400px' }
+                }}>
+                  <Image 
+                    src="/hchogz.png"
+                    alt="HCHOGZ"
+                    fill
+                    style={{ objectFit: 'cover', borderRadius: '12px' }}
+                  />
+                </Box>
+                <Link href={`/${chain.routePrefix}/collection/0x8d52ad8c4fd2ed2c8b14b7d5cd54b326fd4ba367`}>
+                  <Button css={{
+                    background: '$primary9',
+                    color: 'white',
+                    mt: '$4',
+                    width: '100%',
+                    '&:hover': { background: '$primary10' },
+                  }}>
+                    View HC Hogz
+                  </Button>
+                </Link>
+              </Box>
+            </Flex>
+          </Box>
         </Box>
 
         {/* Top Traders Section */}

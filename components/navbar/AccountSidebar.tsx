@@ -149,7 +149,7 @@ export const AccountSidebar: FC = () => {
                 cursor: 'pointer',
               }}
             >
-              <FontAwesomeIcon icon={faStore} />
+              {/* <FontAwesomeIcon icon={faStore} /> */}
               <Text style="body1">My Profile</Text>
             </Flex>
           </Link>
